@@ -59,6 +59,14 @@
 // site, and the tour's top bar is now a hamburger menu: the 9 room links
 // (with room numbers, active room highlighted) plus the Classic view
 // button live inside it. tour.js is loaded with ?v=14.
+// v11.2 (visibility fixes from the v8 walk-through check): the hero
+// owner now stands at the table's far end in visible dark grey (pure
+// black vanished against the walls); the kitchen table is an island
+// mid-room so the seated cook is actually in view, in a bright shirt;
+// the Contact labels are staggered in height and the WhatsApp person
+// stands clear of the end-wall frame's text; the Work TV is hung high
+// on the end wall with a lime border so it reads from the room entry,
+// and the sofa is aligned under it. tour.js is loaded with ?v=15.
 (function () {
   "use strict";
 
@@ -723,7 +731,8 @@
   function drawTV() {
     if (!tvCtx || !work.length) return;
     var W = 1024, H = 576, ctx = tvCtx;
-    ctx.fillStyle = "#050505"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#0d0d0d"; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "#a3e635"; ctx.lineWidth = 6; ctx.strokeRect(3, 3, W - 6, H - 6);
     ctx.fillStyle = "#a3e635";
     ctx.font = "700 30px 'JetBrains Mono', monospace";
     ctx.fillText("SELECTED WORK", 48, 64);
@@ -746,9 +755,11 @@
     tvTex.needsUpdate = true;
   }
   function buildTV() {
+    // hung high on the end wall, above head height, so the screen reads
+    // clearly from the room entry instead of hiding behind the discussers
     var frame = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.0, 0.1),
       new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5, metalness: 0.4 }));
-    frame.position.set(-4.0, 1.9, -43.92);
+    frame.position.set(-3.85, 2.3, -43.92);
     scene.add(frame);
     tvCanvas = document.createElement("canvas");
     tvCanvas.width = 1024; tvCanvas.height = 576;
@@ -757,9 +768,9 @@
     if (THREE.SRGBColorSpace) tvTex.colorSpace = THREE.SRGBColorSpace;
     var screen = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.8),
       new THREE.MeshBasicMaterial({ map: tvTex }));
-    screen.position.set(-4.0, 1.9, -43.86);
+    screen.position.set(-3.85, 2.3, -43.86);
     scene.add(screen);
-    boxMesh(2.4, 0.38, 0.5, woodDark, -4.0, 0.19, -43.6);
+    boxMesh(2.4, 0.38, 0.5, woodDark, -3.85, 0.19, -43.6);
     drawTV();
     setInterval(function () { tvIdx++; drawTV(); }, 3000);
   }
@@ -894,13 +905,13 @@
     tableSet(-4.7, -16, -1);     // about
     tableSet(4.7, -26, 1);       // work entry table (TV lounge adds sofa + screen)
     tableSet(-4.7, -52, -1);     // services
-    tableSet(-4.7, -62.6, -1);   // stack (kitchen adds the shelves)
+    tableSet(-2.5, -66, -1);      // stack (kitchen island; shelves line the walls)
     tableSet(4.7, -80, 1);       // process
     tableSet(-4.7, -92, -1);     // stats
     tableSet(4.7, -118, 1);      // contact
     buildStudy();                // resume room = study room
     buildTV();                   // work room = TV lounge
-    makeSofa(-3.4, -40.2);
+    makeSofa(-3.85, -40.5);
     makeTable(-3.4, -42.2, 0, 0.6, 1.1, 0.45); // coffee table
     buildKitchen();              // stack room = kitchen
   }
@@ -1002,8 +1013,10 @@
     return m;
   }
   function buildPeople() {
-    // hero: the owner (black shirt, taller) in a meeting with two colleagues
-    makePerson({ x: 4.7, z: 2.9, ry: Math.PI, shirt: 0x111111, scale: 1.08 });
+    // hero: the owner (dark shirt, taller) in a meeting with two colleagues
+    // the owner stands at the table's far end, and his shirt is a visible
+    // dark grey — pure black vanished against the dark walls
+    makePerson({ x: 4.7, z: 0.5, ry: Math.PI, shirt: 0x2b2b2b, scale: 1.08 });
     makePerson({ x: 3.92, z: 0.95, ry: Math.PI / 2, seated: true, laptop: true });
     makePerson({ x: 3.92, z: 2.05, ry: Math.PI / 2, seated: true });
     // about: two working at the table, one standing by the frames
@@ -1022,10 +1035,10 @@
     makePerson({ x: -3.92, z: -52.55, ry: -Math.PI / 2, seated: true, laptop: true });
     makePerson({ x: -3.92, z: -51.45, ry: -Math.PI / 2, seated: true });
     makePerson({ x: -4.3, z: -50.6, ry: -Math.PI / 2, point: true });
-    // stack / kitchen: cooks at the shelves + one at the kitchen table
+    // stack / kitchen: cooks at the shelves + one at the kitchen island
     makePerson({ x: -4.05, z: -65, ry: -Math.PI / 2, point: true });
     makePerson({ x: 4.05, z: -67.5, ry: Math.PI / 2 });
-    makePerson({ x: -3.92, z: -62.05, ry: -Math.PI / 2, seated: true });
+    makePerson({ x: -1.72, z: -65.45, ry: -Math.PI / 2, seated: true, shirt: 0xf59e0b });
     // process: two at the table, one standing
     makePerson({ x: 3.92, z: -80.55, ry: Math.PI / 2, seated: true, laptop: true });
     makePerson({ x: 3.92, z: -79.45, ry: Math.PI / 2, seated: true });
@@ -1039,12 +1052,14 @@
     makePerson({ x: -3.3, z: -111, ry: Math.PI, point: true });
     makePerson({ x: 3.6, z: -105.8, ry: 0 });
     // contact: customer service (headset), email, WhatsApp (phone)
+    // the two seated labels are staggered in height so they never stack,
+    // and the WhatsApp person stands clear of the end-wall frame's text
     makePerson({ x: 3.92, z: -118.55, ry: Math.PI / 2, seated: true, laptop: true, headset: true });
-    roleLabel("Customer Service", 3.92, 1.85, -118.55);
+    roleLabel("Customer Service", 3.92, 2.08, -118.55);
     makePerson({ x: 3.92, z: -117.45, ry: Math.PI / 2, seated: true, laptop: true });
-    roleLabel("Email", 3.92, 1.85, -117.45);
-    makePerson({ x: -1.2, z: -121, ry: 0, phone: true });
-    roleLabel("WhatsApp", -1.2, 2.0, -121);
+    roleLabel("Email", 3.92, 1.68, -117.45);
+    makePerson({ x: -3.4, z: -119.2, ry: 0, phone: true });
+    roleLabel("WhatsApp", -3.4, 1.8, -119.2);
   }
 
   // ---------- guide robot (v6; v7: no speech bubble — robot only) ----------
