@@ -225,6 +225,77 @@
     });
   });
 
+  // ---- Selected Work as a 3D curved gallery (video-style wall) ----
+  (function () {
+    var grid = document.querySelector(".work-grid");
+    if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll(".work-card"));
+    if (cards.length < 2) return;
+    var nav = document.getElementById("work3dNav");
+    var countEl = document.getElementById("workCount");
+    var hint = document.getElementById("work3dHint");
+    grid.classList.add("work-3d-on");
+    grid.setAttribute("tabindex", "0");
+    if (nav) nav.hidden = false;
+    if (hint) hint.hidden = false;
+    var n = cards.length, active = 0, dragging = false, moved = false, startX = 0, dragDx = 0;
+    var SPACING = 235, ANGLE = 32, DEPTH = 300;
+    function layout(frac) {
+      var pos = active + (frac || 0);
+      cards.forEach(function (card, i) {
+        var d = i - pos;
+        var ad = Math.abs(d);
+        var z = DEPTH - Math.min(ad, 3) * 70;
+        card.style.transform = "translateX(" + (d * SPACING) + "px) rotateY(" + (d * ANGLE) + "deg) translateZ(" + z + "px)";
+        card.style.opacity = ad === 0 ? "1" : ad === 1 ? "0.85" : ad === 2 ? "0.55" : "0.3";
+        card.classList.toggle("is-active", i === active && !frac);
+        card.style.pointerEvents = ad > 3.2 ? "none" : "";
+      });
+      if (countEl) {
+        var t = cards[active].querySelector("h3");
+        countEl.textContent = (active + 1) + " / " + n + (t ? " — " + t.textContent.trim() : "");
+      }
+    }
+    function go(i) {
+      active = Math.max(0, Math.min(n - 1, i));
+      cards.forEach(function (c) { c.style.transition = ""; });
+      layout(0);
+    }
+    cards.forEach(function (card, i) {
+      card.addEventListener("click", function (ev) {
+        if (moved) return;
+        if (i !== active) { ev.preventDefault(); go(i); }
+      });
+    });
+    var prev = document.getElementById("workPrev"), next = document.getElementById("workNext");
+    if (prev) prev.addEventListener("click", function () { go(active - 1); });
+    if (next) next.addEventListener("click", function () { go(active + 1); });
+    grid.addEventListener("keydown", function (ev) {
+      if (ev.key === "ArrowLeft") go(active - 1);
+      if (ev.key === "ArrowRight") go(active + 1);
+    });
+    grid.addEventListener("pointerdown", function (ev) {
+      dragging = true; moved = false; startX = ev.clientX; dragDx = 0;
+      cards.forEach(function (c) { c.style.transition = "none"; });
+      try { grid.setPointerCapture(ev.pointerId); } catch (e) {}
+    });
+    grid.addEventListener("pointermove", function (ev) {
+      if (!dragging) return;
+      dragDx = ev.clientX - startX;
+      if (Math.abs(dragDx) > 8) moved = true;
+      layout(-dragDx / 160);
+    });
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      if (Math.abs(dragDx) > 60) go(active + (dragDx < 0 ? 1 : -1));
+      else go(active);
+    }
+    grid.addEventListener("pointerup", endDrag);
+    grid.addEventListener("pointercancel", endDrag);
+    layout(0);
+  })();
+
   // ---- Staggered scroll-reveal inside grids ----
   document.querySelectorAll(".work-grid .reveal, .services-grid .reveal, .process-grid .reveal, .stack-grid .reveal").forEach(function (el, i) {
     el.style.transitionDelay = ((i % 3) * 90) + "ms";

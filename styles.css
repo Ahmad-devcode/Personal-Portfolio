@@ -115,6 +115,21 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.6rem); font-weight: 800; letter-spacing: 
 .work-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 36px; }
 .work-card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); overflow: hidden; transition: transform .2s, border-color .2s, box-shadow .2s; display: flex; flex-direction: column; }
 .work-card:hover { transform: translateY(-5px); border-color: rgba(212,175,55,.55); box-shadow: 0 18px 44px rgba(0,0,0,.45); }
+
+/* ---------- work 3D gallery (video-style curved wall) ---------- */
+.work-grid.work-3d-on { display: block; position: relative; height: 600px; margin-top: 36px; perspective: 1500px; transform-style: preserve-3d; overflow: hidden; touch-action: pan-y; }
+.work-grid.work-3d-on:focus { outline: none; }
+.work-grid.work-3d-on .work-card { position: absolute; left: 50%; top: 20px; width: 360px; height: 520px; margin-left: -180px; transform-style: preserve-3d; backface-visibility: hidden; transition: transform .55s cubic-bezier(.22,.9,.3,1), opacity .55s, box-shadow .55s; cursor: pointer; }
+.work-grid.work-3d-on .work-card.is-active { box-shadow: 0 30px 70px rgba(0,0,0,.55); cursor: default; }
+.work-3d-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
+.w3d-arrow { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--white); font-size: 1.1rem; cursor: pointer; }
+.w3d-arrow:hover { border-color: var(--accent); color: var(--accent); }
+.w3d-count { font-family: "JetBrains Mono", monospace; font-size: .85rem; color: var(--muted); min-width: 200px; text-align: center; }
+.w3d-hint { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 8px; }
+@media (max-width: 640px) {
+  .work-grid.work-3d-on { height: 540px; perspective: 1100px; }
+  .work-grid.work-3d-on .work-card { width: 300px; height: 480px; margin-left: -150px; }
+}
 .work-visual { height: 168px; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; position: relative; }
 .work-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.35)); }
 .work-visual span { position: relative; z-index: 1; }

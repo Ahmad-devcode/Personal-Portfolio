@@ -40,6 +40,14 @@
 // cutting the text ("MAD RAZA", "CLICK TO OPE"). It is now 3.8 wide at
 // x=-2.9, fully inside the wall and fully visible from the start and
 // while walking. tour.js is loaded with ?v=11.
+// v8.2: v8.1 moved the box right onto the doorway pilaster (x -1.84..-1.56,
+// its front face sits 0.09 in front of the frame plane), so the pilaster
+// cut the box's right edge ("that", "customers"). The box now sits fully
+// on the left wall segment: 3.6 wide at x=-3.85 (spans -5.65..-2.05).
+// v9: classic view's Selected Work is a 3D curved gallery (video-style):
+// the 9 project cards sit on a curved wall in CSS 3D — drag, arrows or
+// click to bring a project forward; the centre card faces you straight.
+// tour.js is loaded with ?v=12.
 (function () {
   "use strict";
 
@@ -163,7 +171,7 @@
   }
   var ANG = Math.PI / 2 - 0.6; // side frames angled toward the walkway so they face the camera
 // hero room (end wall z=-8); portrait now on the right wall, full photo
-  F(-2.9, -7.92, 0, 3.8, 2.6, "hero", { title: "Ahmad Raza — Web Developer" });
+  F(-3.85, -7.92, 0, 3.6, 2.6, "hero", { title: "Ahmad Raza — Web Developer" });
   F(5.15, -4, -ANG, 2.6, 3.7, "portrait", { title: "Ahmad Raza" });
   F(-5.15, -2, ANG, 2.9, 1.8, "terminal", { title: "$ whoami" });
   // about room — frames on all three sides (left, right, front wall)
