@@ -1,4 +1,4 @@
-// Ahmad Raza — Portfolio 3D tour (v6.1)
+// Ahmad Raza — Portfolio 3D tour (v6.2)
 // The whole site as a walk-through gallery, like the "Websites in 2026" video:
 // hero first, then every section is a room. Frames hang on the walls — click a
 // frame to open that section's full details. Scroll / drag / arrow keys walk
@@ -20,6 +20,9 @@
 // so every label showed "0"); the robot now faces the camera with its
 // glowing eyes toward you, stands farther ahead so it is fully in view,
 // and carries its own little lime light.
+// v6.2: stats board second row was drawn off-canvas (its y was scaled
+// twice), so only one row showed; rows re-laid out in design units and
+// the bottom "CLICK TO OPEN" line removed from this dense board.
 (function () {
   "use strict";
 
@@ -404,7 +407,7 @@
     stats.forEach(function (st, i) {
       var row = Math.floor(i / perRow), col = i % perRow;
       var x = 40 * s + col * colW;
-      var numY = (row === 0 ? 262 : 422) * s, labY = (row === 0 ? 312 : 472) * s;
+      var numY = (row === 0 ? 172 : 272) * s, labY = (row === 0 ? 200 : 300) * s;
       ctx.fillStyle = "#ffffff";
       var ns = fitFont(ctx, st.num, colW - 16 * s, 64 * s, 34 * s, "800", "Inter, system-ui, sans-serif");
       ctx.font = "800 " + ns + "px Inter, system-ui, sans-serif";
@@ -412,12 +415,9 @@
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.font = 20 * s + "px Inter, system-ui, sans-serif";
       wrapText(ctx, st.label, colW - 16 * s).slice(0, 2).forEach(function (ln, j) {
-        ctx.fillText(ln, x, labY + j * 28 * s);
+        ctx.fillText(ln, x, labY + j * 24 * s);
       });
     });
-    ctx.fillStyle = "rgba(255,255,255,0.75)";
-    ctx.font = 17 * s + "px 'JetBrains Mono', monospace";
-    ctx.fillText("CLICK TO OPEN \u2197", W - 40 * s - ctx.measureText("CLICK TO OPEN \u2197").width, H - 26 * s);
     return toTexture(b.c);
   }
   function frameTexture(f) {
