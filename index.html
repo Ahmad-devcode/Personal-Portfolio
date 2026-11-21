@@ -430,10 +430,12 @@
   <canvas id="tourCanvas" aria-label="3D walk-through gallery. Scroll or drag to walk through the rooms, click a frame to open it."></canvas>
   <div class="tour-top">
     <span class="tour-logo"><span class="logo-mark">A</span>ahmad<span class="accent">.</span>raza</span>
-    <div class="tour-chips" id="tourChips" role="group" aria-label="Jump to a room"></div>
-    <button class="btn btn-ghost btn-sm" id="tourExit" type="button">Classic view</button>
+    <button class="tour-menu-btn" id="tourMenuBtn" type="button" aria-label="Open menu" aria-expanded="false">&#9776;</button>
+    <nav class="tour-menu" id="tourMenu" hidden aria-label="Tour menu">
+      <div class="tour-menu-list" id="tourMenuList" role="group" aria-label="Jump to a room"></div>
+      <button class="tour-menu-classic" id="tourExit" type="button">Classic view</button>
+    </nav>
   </div>
-  <p class="tour-hint mono">Scroll / drag to walk &mdash; click a frame to open it</p>
   <button class="tour-arrow left" id="tourPrev" aria-label="Previous room">&#8592;</button>
   <button class="tour-arrow right" id="tourNext" aria-label="Next room">&#8594;</button>
   <div class="tour-overlay">
@@ -452,7 +454,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script src="tour.js?v=13"></script>
+<script src="tour.js?v=14"></script>
 <script src="script.js"></script>
 </body>
 </html>

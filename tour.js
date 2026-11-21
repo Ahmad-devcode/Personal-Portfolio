@@ -55,6 +55,10 @@
 // below 0.85, 64 below 1.2, else 55) so rooms no longer feel like a tube
 // on phones. Classic view's 3D gallery re-metrics itself from the stage
 // width on small screens. tour.js is loaded with ?v=13.
+// v11: the "Scroll / drag to walk" hint pill is removed from the whole
+// site, and the tour's top bar is now a hamburger menu: the 9 room links
+// (with room numbers, active room highlighted) plus the Classic view
+// button live inside it. tour.js is loaded with ?v=14.
 (function () {
   "use strict";
 
@@ -1084,14 +1088,35 @@
   var titleEl = document.getElementById("tourTitle");
   var countEl = document.getElementById("tourCount");
   var progEl = document.getElementById("tourProgress");
-  var chipsBox = document.getElementById("tourChips");
+  var chipsBox = document.getElementById("tourMenuList");
   var modal = document.getElementById("tourModal");
   var chipBtns = [];
-  ROOMS.forEach(function (r) {
+  // tour menu (hamburger): the room links + Classic view live here now
+  var menuBtn = document.getElementById("tourMenuBtn");
+  var menu = document.getElementById("tourMenu");
+  function setMenu(open) {
+    if (!menu || !menuBtn) return;
+    menu.hidden = !open;
+    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  if (menuBtn) menuBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    setMenu(menu.hidden);
+  });
+  document.addEventListener("click", function (e) {
+    if (menu && !menu.hidden && !e.target.closest("#tourMenu, #tourMenuBtn")) setMenu(false);
+  });
+  ROOMS.forEach(function (r, i) {
     var b = document.createElement("button");
-    b.className = "tour-chip";
-    b.textContent = r.name;
-    b.addEventListener("click", function () { jumpTo(r); });
+    b.className = "tour-menu-item";
+    var nm = document.createElement("span");
+    nm.textContent = r.name;
+    var nn = document.createElement("span");
+    nn.className = "n";
+    nn.textContent = (i + 1) + " / " + ROOMS.length;
+    b.appendChild(nm);
+    b.appendChild(nn);
+    b.addEventListener("click", function () { setMenu(false); jumpTo(r); });
     chipsBox.appendChild(b);
     chipBtns.push(b);
   });
@@ -1104,7 +1129,7 @@
   document.getElementById("tourClose").addEventListener("click", modalClose);
   document.getElementById("tourBackdrop").addEventListener("click", modalClose);
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") modalClose();
+    if (e.key === "Escape") { modalClose(); setMenu(false); }
   });
 
   function linksHtml(links, note) {
