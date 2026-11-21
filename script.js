@@ -148,6 +148,20 @@
     try { saved = localStorage.getItem("folio-theme"); } catch (e) {}
     if (saved && THEMES[saved]) applyTheme(saved);
   }
+  // the dock is a side icon now: tap it to open the theme panel
+  var toggle = document.getElementById("themeToggle");
+  if (toggle && dock) {
+    toggle.addEventListener("click", function () {
+      var open = dock.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    dock.querySelectorAll(".swatch").forEach(function (b) {
+      b.addEventListener("click", function () {
+        dock.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
 
   // ---- Constellation canvas behind the hero ----
   var canvas = document.getElementById("constellation");

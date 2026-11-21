@@ -29,6 +29,12 @@
 // longer crosses it; the stats board is narrower with inner padding so
 // its first column is never clipped. tour.js is loaded with ?v=9 so
 // browsers fetch the new file, not a cached copy.
+// v8: the portfolio is a working company — 3–4 people in every room
+// (owner in a meeting in hero, two discussing every project, cooks in
+// the kitchen, customer service / email / WhatsApp in contact); the
+// theme dock moves from the bottom bar to a side palette icon that
+// opens the themes on tap. tour.js is loaded with ?v=10 so browsers
+// fetch the new file, not a cached copy.
 (function () {
   "use strict";
 
@@ -621,6 +627,7 @@
   var cushionMat = new THREE.MeshStandardMaterial({ color: 0x2e2e3a, roughness: 1, metalness: 0 });
   var shelfMat = new THREE.MeshStandardMaterial({ color: 0x191919, roughness: 0.9, metalness: 0.1 });
   var limeTrimMat = new THREE.MeshBasicMaterial({ color: 0xa3e635 });
+  var limeDouble = new THREE.MeshBasicMaterial({ color: 0xa3e635, side: THREE.DoubleSide });
   var BOOK_COLORS = [0xa3e635, 0x2563eb, 0xd97706, 0xe11d48, 0x0d9488, 0x7c3aed, 0xf5f5f5, 0x65a30d];
 
   function boxMesh(w, h, d, mat, x, y, z, parent) {
@@ -743,7 +750,7 @@
     var lbase = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.3),
       new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4, metalness: 0.6 }));
     lap.add(lbase);
-    var lscr = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.26), limeTrimMat);
+    var lscr = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.26), limeDouble);
     lscr.position.set(0, 0.14, -0.14);
     lscr.rotation.y = -Math.PI / 2; lscr.rotation.x = -0.2;
     lap.add(lscr);
@@ -861,7 +868,7 @@
   function buildFurniture() {
     tableSet(4.7, 1.5, 1);       // hero
     tableSet(-4.7, -16, -1);     // about
-    tableSet(4.7, -30, 1);       // work (TV lounge adds sofa + screen)
+    tableSet(4.7, -26, 1);       // work entry table (TV lounge adds sofa + screen)
     tableSet(-4.7, -52, -1);     // services
     tableSet(-4.7, -62.6, -1);   // stack (kitchen adds the shelves)
     tableSet(4.7, -80, 1);       // process
@@ -872,6 +879,148 @@
     makeSofa(-3.4, -40.2);
     makeTable(-3.4, -42.2, 0, 0.6, 1.1, 0.45); // coffee table
     buildKitchen();              // stack room = kitchen
+  }
+
+  // ---------- people (v8) ----------
+  // The portfolio as a working company: 3–4 people in every room.
+  // The owner meets two colleagues in the hero room; every project has
+  // two people discussing it; the kitchen has cooks at the shelves; the
+  // contact room has customer service, email and WhatsApp handlers.
+  var people = [];
+  var SKIN = [0xd9a986, 0xc9a186, 0x8d5a3b, 0xe8b98a];
+  var SHIRTS = [0x2f6fed, 0x16a34a, 0xd97706, 0x7c3aed, 0xe11d48, 0x0d9488, 0x334155, 0x65a30d];
+  function makePerson(o) {
+    var g = new THREE.Group();
+    var shirt = new THREE.MeshStandardMaterial({ color: o.shirt != null ? o.shirt : SHIRTS[Math.floor(Math.random() * SHIRTS.length)], roughness: 0.9 });
+    var skin = new THREE.MeshStandardMaterial({ color: o.skin != null ? o.skin : SKIN[Math.floor(Math.random() * SKIN.length)], roughness: 0.8 });
+    var pants = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.95 });
+    var hairM = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1 });
+    if (o.seated) {
+      var thigh = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.13, 0.42), pants);
+      thigh.position.set(0, 0.42, 0.14); g.add(thigh);
+      var torso = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.55, 0.26), shirt);
+      torso.position.set(0, 0.74, 0); g.add(torso);
+      var head = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.28, 0.26), skin);
+      head.position.set(0, 1.14, 0); g.add(head);
+      var hair = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.09, 0.28), hairM);
+      hair.position.set(0, 1.31, 0); g.add(hair);
+      if (o.headset) {
+        var band = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.28), hairM);
+        band.position.set(0, 1.32, 0); g.add(band);
+        var mic = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.16), hairM);
+        mic.position.set(0.14, 1.04, 0.14); g.add(mic);
+      }
+      [-1, 1].forEach(function (sx) {
+        var arm = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.38, 0.09), shirt);
+        arm.position.set(sx * 0.25, 0.72, 0.16);
+        arm.rotation.x = -0.8;
+        g.add(arm);
+      });
+      if (o.laptop) {
+        var lb = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.02, 0.26),
+          new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4, metalness: 0.5 }));
+        lb.position.set(0, 0.52, 0.3); g.add(lb);
+        var ls = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.22), limeDouble);
+        ls.position.set(0, 0.62, 0.2); ls.rotation.x = -0.35;
+        g.add(ls);
+      }
+    } else {
+      var legs = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.78, 0.2), pants);
+      legs.position.set(0, 0.39, 0); g.add(legs);
+      var torso2 = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.6, 0.28), shirt);
+      torso2.position.set(0, 1.08, 0); g.add(torso2);
+      var head2 = new THREE.Mesh(new THREE.BoxGeometry(0.27, 0.3, 0.27), skin);
+      head2.position.set(0, 1.53, 0); g.add(head2);
+      var hair2 = new THREE.Mesh(new THREE.BoxGeometry(0.29, 0.09, 0.29), hairM);
+      hair2.position.set(0, 1.71, 0); g.add(hair2);
+      [-1, 1].forEach(function (sx) {
+        var arm2 = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.5, 0.09), shirt);
+        arm2.position.set(sx * 0.27, 1.08, 0);
+        arm2.rotation.z = sx * 0.08;
+        if (o.point && sx === 1) { arm2.position.set(0.27, 1.25, 0.18); arm2.rotation.x = -1.1; }
+        g.add(arm2);
+      });
+      if (o.phone) {
+        var ph = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.03),
+          new THREE.MeshStandardMaterial({ color: 0x25d366, roughness: 0.5 }));
+        ph.position.set(0.3, 1.15, 0.22); ph.rotation.x = -0.3;
+        g.add(ph);
+      }
+    }
+    g.scale.setScalar(o.scale || 1);
+    g.position.set(o.x, 0, o.z);
+    g.rotation.y = o.ry || 0;
+    g.userData.phase = Math.random() * Math.PI * 2;
+    scene.add(g);
+    people.push(g);
+    return g;
+  }
+  function roleLabel(text, x, y, z) {
+    var c = document.createElement("canvas");
+    c.width = 512; c.height = 96;
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "rgba(10,10,10,0.85)";
+    roundRect(ctx, 4, 4, 504, 88, 40); ctx.fill();
+    ctx.strokeStyle = "#a3e635"; ctx.lineWidth = 4;
+    roundRect(ctx, 4, 4, 504, 88, 40); ctx.stroke();
+    ctx.fillStyle = "#a3e635";
+    ctx.textAlign = "center";
+    var sz = fitFont(ctx, text, 460, 40, 18, "700", "Inter, system-ui, sans-serif");
+    ctx.font = "700 " + sz + "px Inter, system-ui, sans-serif";
+    ctx.fillText(text, 256, 60);
+    ctx.textAlign = "left";
+    var t = new THREE.CanvasTexture(c);
+    if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.22),
+      new THREE.MeshBasicMaterial({ map: t, transparent: true, side: THREE.DoubleSide }));
+    m.position.set(x, y, z);
+    scene.add(m);
+    return m;
+  }
+  function buildPeople() {
+    // hero: the owner (black shirt, taller) in a meeting with two colleagues
+    makePerson({ x: 4.7, z: 2.9, ry: Math.PI, shirt: 0x111111, scale: 1.08 });
+    makePerson({ x: 3.92, z: 0.95, ry: Math.PI / 2, seated: true, laptop: true });
+    makePerson({ x: 3.92, z: 2.05, ry: Math.PI / 2, seated: true });
+    // about: two working at the table, one standing by the frames
+    makePerson({ x: -3.92, z: -16.55, ry: -Math.PI / 2, seated: true, laptop: true });
+    makePerson({ x: -3.92, z: -15.45, ry: -Math.PI / 2, seated: true });
+    makePerson({ x: -4.3, z: -14.6, ry: -Math.PI / 2, point: true });
+    // work: two people discussing in front of every project frame
+    frames.forEach(function (f) {
+      if (f.kind !== "project") return;
+      var side = f.x < 0 ? -1 : 1;
+      var px = f.x - side * 0.85;
+      makePerson({ x: px, z: f.z - 0.85, ry: side > 0 ? Math.PI / 2 : -Math.PI / 2, point: true });
+      makePerson({ x: px, z: f.z + 0.85, ry: side > 0 ? Math.PI / 2 : -Math.PI / 2 });
+    });
+    // services: two at the table, one standing
+    makePerson({ x: -3.92, z: -52.55, ry: -Math.PI / 2, seated: true, laptop: true });
+    makePerson({ x: -3.92, z: -51.45, ry: -Math.PI / 2, seated: true });
+    makePerson({ x: -4.3, z: -50.6, ry: -Math.PI / 2, point: true });
+    // stack / kitchen: cooks at the shelves + one at the kitchen table
+    makePerson({ x: -4.05, z: -65, ry: -Math.PI / 2, point: true });
+    makePerson({ x: 4.05, z: -67.5, ry: Math.PI / 2 });
+    makePerson({ x: -3.92, z: -62.05, ry: -Math.PI / 2, seated: true });
+    // process: two at the table, one standing
+    makePerson({ x: 3.92, z: -80.55, ry: Math.PI / 2, seated: true, laptop: true });
+    makePerson({ x: 3.92, z: -79.45, ry: Math.PI / 2, seated: true });
+    makePerson({ x: 4.3, z: -78.6, ry: Math.PI / 2, point: true });
+    // stats: two at the table, one facing the board
+    makePerson({ x: -3.92, z: -92.55, ry: -Math.PI / 2, seated: true, laptop: true });
+    makePerson({ x: -3.92, z: -91.45, ry: -Math.PI / 2, seated: true });
+    makePerson({ x: -3.5, z: -90.5, ry: Math.PI });
+    // resume / study: one at the desk, one at the bookshelf, one discussing
+    makePerson({ x: 3.9, z: -104, ry: Math.PI / 2, seated: true, laptop: true });
+    makePerson({ x: -3.3, z: -111, ry: Math.PI, point: true });
+    makePerson({ x: 3.6, z: -105.8, ry: 0 });
+    // contact: customer service (headset), email, WhatsApp (phone)
+    makePerson({ x: 3.92, z: -118.55, ry: Math.PI / 2, seated: true, laptop: true, headset: true });
+    roleLabel("Customer Service", 3.92, 1.85, -118.55);
+    makePerson({ x: 3.92, z: -117.45, ry: Math.PI / 2, seated: true, laptop: true });
+    roleLabel("Email", 3.92, 1.85, -117.45);
+    makePerson({ x: -1.2, z: -121, ry: 0, phone: true });
+    roleLabel("WhatsApp", -1.2, 2.0, -121);
   }
 
   // ---------- guide robot (v6; v7: no speech bubble — robot only) ----------
@@ -1229,6 +1378,10 @@
       robot.position.z = robotZ;
       robot.position.y = moving ? Math.abs(Math.sin(robotRun)) * 0.06 : Math.sin(now * 2) * 0.015;
     }
+    // people idle: a gentle bob so the office feels alive
+    people.forEach(function (p) {
+      p.position.y = Math.sin(now * 1.6 + p.userData.phase) * 0.012;
+    });
     frames.forEach(function (f) {
       var want = (f === nearestFrame) ? 1.14 : 1;
       f.scale += (want - f.scale) * 0.12;
@@ -1246,6 +1399,7 @@
     buildPosters();
     buildRobot();
     buildFurniture();
+    buildPeople();
     resize();
     animate();
   }

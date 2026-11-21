@@ -399,15 +399,20 @@
 </footer>
 
 <div class="theme-dock" id="themeDock" role="group" aria-label="Color theme">
-  <span class="td-label">Theme</span>
-  <div class="swatches">
-    <button class="swatch active" data-theme="lime" aria-label="OLED Lime theme" title="OLED Lime"></button>
-    <button class="swatch" data-theme="violet" aria-label="Midnight Violet theme" title="Midnight Violet"></button>
-    <button class="swatch" data-theme="ocean" aria-label="Ocean Depth theme" title="Ocean Depth"></button>
-    <button class="swatch" data-theme="sage" aria-label="Forest Sage theme" title="Forest Sage"></button>
-    <button class="swatch" data-theme="ivory" aria-label="Ivory Travertine theme" title="Ivory Travertine"></button>
+  <button class="td-toggle" id="themeToggle" aria-label="Change color theme" title="Change theme" aria-expanded="false">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16a5 5 0 0 0 5-5c0-4.42-4.03-8-9-8zm-4.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+  </button>
+  <div class="td-panel" id="themePanel">
+    <span class="td-label">Theme</span>
+    <div class="swatches">
+      <button class="swatch active" data-theme="lime" aria-label="OLED Lime theme" title="OLED Lime"></button>
+      <button class="swatch" data-theme="violet" aria-label="Midnight Violet theme" title="Midnight Violet"></button>
+      <button class="swatch" data-theme="ocean" aria-label="Ocean Depth theme" title="Ocean Depth"></button>
+      <button class="swatch" data-theme="sage" aria-label="Forest Sage theme" title="Forest Sage"></button>
+      <button class="swatch" data-theme="ivory" aria-label="Ivory Travertine theme" title="Ivory Travertine"></button>
+    </div>
+    <span class="td-name" id="themeName">OLED Lime</span>
   </div>
-  <span class="td-name" id="themeName">OLED Lime</span>
 </div>
 
 <a class="wa-float" href="https://wa.me/923240790546" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
@@ -441,7 +446,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script src="tour.js?v=9"></script>
+<script src="tour.js?v=10"></script>
 <script src="script.js"></script>
 </body>
 </html>
