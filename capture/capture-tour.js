@@ -1517,6 +1517,13 @@
     }
     function capWaitStart() {
       if (wrap.hidden) { setTimeout(capWaitStart, 200); return; }
+      var only = parseInt(new URLSearchParams(location.search).get("shot") || "0", 10);
+      if (only >= 1 && only <= CAP_SHOTS.length) {
+        var one = CAP_SHOTS[only - 1];
+        targetZ = one.z; targetYaw = one.yaw;
+        setTimeout(function () { capSnap(one.name); document.title = "CAPTURE-DONE"; }, 2600);
+        return;
+      }
       var i = 0;
       function next() {
         if (i >= CAP_SHOTS.length) { document.title = "CAPTURE-DONE"; return; }
