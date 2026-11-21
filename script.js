@@ -64,12 +64,14 @@
   // Count-up stats
   var counters = document.querySelectorAll(".count");
   function animateCount(node) {
-    var target = parseInt(node.getAttribute("data-target"), 10) || 0;
+    var raw = node.getAttribute("data-target") || "0";
+    var target = parseFloat(raw) || 0;
+    var decimals = raw.indexOf(".") >= 0 ? 1 : 0;
     var start = null, dur = 1400;
     function step(ts) {
       if (!start) start = ts;
       var p = Math.min((ts - start) / dur, 1);
-      node.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      node.textContent = (target * (1 - Math.pow(1 - p, 3))).toFixed(decimals);
       if (p < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);

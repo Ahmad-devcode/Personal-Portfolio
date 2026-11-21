@@ -1,4 +1,4 @@
-// Ahmad Raza — Portfolio 3D tour (v5)
+// Ahmad Raza — Portfolio 3D tour (v6)
 // The whole site as a walk-through gallery, like the "Websites in 2026" video:
 // hero first, then every section is a room. Frames hang on the walls — click a
 // frame to open that section's full details. Scroll / drag / arrow keys walk
@@ -9,6 +9,13 @@
 // room gets a big sparkling "AHMAD RAZA — PORTFOLIO" entrance poster);
 // frame text is fitted so nothing runs past its box; the portrait shows
 // the full photo, never cropped.
+// v6: a guide robot runs on the track line and announces each section;
+// the portrait moves to the right wall; every room has frames on all
+// three sides; stats add 10+ completed / 5 pending / 4.5 rating / 90%
+// trust (read from data-target, so the tour never shows 0s); the stack
+// matches the GitHub profile (TypeScript, Vite, Python, VS Code added).
+// tour.js is loaded with ?v=6 so browsers fetch the new file, not a
+// cached copy.
 (function () {
   "use strict";
 
@@ -77,8 +84,19 @@
     return { num: txt(".p-num", c), title: txt("h3", c), desc: txt("p", c) };
   });
   var stats = qa("#stats .stat, .stats-band .stat").map(function (s) {
-    return { num: txt("strong", s).replace(/\s+/g, ""), label: txt("span:last-child", s) };
+    // read the real number from data-target: the count-up text still shows
+    // "0" when the tour loads, so reading the text would draw 0s.
+    var strong = q("strong", s), cnt = q(".count", s);
+    var target = cnt ? cnt.getAttribute("data-target") : null;
+    var full = strong ? (strong.innerText || strong.textContent || "").replace(/\s+/g, "") : "";
+    var cur = cnt ? (cnt.innerText || cnt.textContent || "").trim() : "";
+    var suffix = cur ? full.replace(cur, "") : full;
+    return { num: (target || cur) + suffix, label: txt("span:last-child", s) };
   });
+  function findStat(label) {
+    for (var i = 0; i < stats.length; i++) if (stats[i].label === label) return stats[i];
+    return null;
+  }
   var resumeCols = qa("#resume .resume-grid > div").map(function (col) {
     return {
       head: txt(".resume-head", col),
@@ -120,13 +138,14 @@
     frames.push({ x: x, z: z, rotY: rotY, w: w, h: h, kind: kind, data: data, title: data.title || data.name || kind });
   }
   var ANG = Math.PI / 2 - 0.6; // side frames angled toward the walkway so they face the camera
-// hero room (end wall z=-8)
+// hero room (end wall z=-8); portrait now on the right wall, full photo
   F(-3.9, -7.92, 0, 4.6, 2.9, "hero", { title: "Ahmad Raza — Web Developer" });
-  F(3.9, -7.92, 0, 2.6, 3.7, "portrait", { title: "Ahmad Raza" });
+  F(5.15, -4, -ANG, 2.6, 3.7, "portrait", { title: "Ahmad Raza" });
   F(-5.15, -2, ANG, 2.9, 1.8, "terminal", { title: "$ whoami" });
-  // about room
+  // about room — frames on all three sides (left, right, front wall)
   F(-5.15, -16, ANG, 2.9, 1.8, "about", { title: "About — Design eye. Developer hands." });
   F(5.15, -16, -ANG, 2.9, 1.8, "facts", { title: "Quick facts" });
+  F(4.0, -23.92, 0, 4.0, 2.6, "about-more", { title: "What I care about" });
   // work room (9 projects)
   var workZ = { left: [-27, -31, -35, -39, -42.5], right: [-29, -33, -37, -41] };
   work.forEach(function (pj, i) {
@@ -135,31 +154,40 @@
     var idx = Math.floor(i / 2);
     F(side === "left" ? -5.15 : 5.15, list[idx], side === "left" ? ANG : -ANG, 2.9, 1.8, "project", pj);
   });
+  F(4.0, -43.92, 0, 4.0, 2.6, "work-more", { title: "Selected Work" });
   // services room
   services.forEach(function (s, i) {
     var side = i % 2 === 0 ? "left" : "right";
     var z = side === "left" ? [-47, -51, -55][Math.floor(i / 2)] : [-49, -53, -57][Math.floor(i / 2)];
     F(side === "left" ? -5.15 : 5.15, z, side === "left" ? ANG : -ANG, 2.9, 1.8, "service", s);
   });
+  F(4.0, -59.92, 0, 4.0, 2.6, "services-more", { title: "What I can build for you" });
   // stack room
+  var totalTech = 0;
+  stack.forEach(function (g) { totalTech += g.tags.length; });
   stack.forEach(function (g, i) {
     var side = i % 2 === 0 ? "left" : "right";
     var z = side === "left" ? [-63, -67][Math.floor(i / 2)] : -65;
     F(side === "left" ? -5.15 : 5.15, z, side === "left" ? ANG : -ANG, 2.9, 1.8, "stack", g);
   });
+  F(4.0, -71.92, 0, 4.0, 2.6, "stack-more", { title: "My stack" });
   // process room
   process.forEach(function (st, i) {
     var side = i % 2 === 0 ? "left" : "right";
     var z = side === "left" ? [-75, -79][Math.floor(i / 2)] : [-77, -81][Math.floor(i / 2)];
     F(side === "left" ? -5.15 : 5.15, z, side === "left" ? ANG : -ANG, 2.9, 1.8, "step", st);
   });
-  // stats room (end wall z=-96)
+  F(4.0, -87.92, 0, 4.0, 2.6, "process-more", { title: "From idea to launch" });
+  // stats room (end wall z=-96) — new stats as side frames too
   F(-3.9, -95.15, 0, 4.6, 2.6, "stats", { title: "By the numbers" });
   F(3.9, -95.15, 0, 2.6, 1.8, "badge", { title: hero.badge });
+  F(-5.15, -92, ANG, 2.9, 1.8, "stat-side", { title: "Projects", side: "left" });
+  F(5.15, -92, -ANG, 2.9, 1.8, "stat-side", { title: "Rating & Trust", side: "right" });
   // resume room
   resumeCols.forEach(function (col, i) {
     F(i === 0 ? -5.15 : 5.15, -104, i === 0 ? ANG : -ANG, 2.9, 1.8, "resume", col);
   });
+  F(4.0, -111.92, 0, 4.0, 2.6, "resume-more", { title: "Freelance Web Developer" });
   // contact room (end wall z=-124)
   F(-5.15, -117, ANG, 2.9, 1.8, "contact-wa", { title: "WhatsApp" });
   F(5.15, -117, -ANG, 2.9, 1.8, "contact-email", { title: "Email" });
@@ -368,16 +396,19 @@
     ctx.fillStyle = "#ffffff";
     ctx.font = "800 " + 34 * s + "px Inter, system-ui, sans-serif";
     ctx.fillText("Things I've built & shipped.", 40 * s, 116 * s);
-    var colW = (W - 80 * s) / 4;
+    var colW = (W - 80 * s) / 4, perRow = 4;
     stats.forEach(function (st, i) {
-      var x = 40 * s + i * colW;
+      var row = Math.floor(i / perRow), col = i % perRow;
+      var x = 40 * s + col * colW;
+      var numY = (row === 0 ? 262 : 422) * s, labY = (row === 0 ? 312 : 472) * s;
       ctx.fillStyle = "#ffffff";
-      ctx.font = "800 " + 64 * s + "px Inter, system-ui, sans-serif";
-      ctx.fillText(st.num, x, 300 * s);
+      var ns = fitFont(ctx, st.num, colW - 16 * s, 64 * s, 34 * s, "800", "Inter, system-ui, sans-serif");
+      ctx.font = "800 " + ns + "px Inter, system-ui, sans-serif";
+      ctx.fillText(st.num, x, numY);
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.font = 20 * s + "px Inter, system-ui, sans-serif";
       wrapText(ctx, st.label, colW - 16 * s).slice(0, 2).forEach(function (ln, j) {
-        ctx.fillText(ln, x, 350 * s + j * 28 * s);
+        ctx.fillText(ln, x, labY + j * 28 * s);
       });
     });
     ctx.fillStyle = "rgba(255,255,255,0.75)";
@@ -417,6 +448,35 @@
         return textTexture({ grad: "green", tag: "WhatsApp", title: "+92 324 0790546", lines: ["Chat on WhatsApp"] });
       case "contact-email":
         return textTexture({ grad: "blue", tag: "Email", title: "razasardar722212@gmail.com", lines: ["Email me"] });
+      case "about-more":
+        return textTexture({ grad: "blue", tag: "About", title: "What I care about", lines: about.paras.slice(1) });
+      case "work-more":
+        return textTexture({ grad: "slate", tag: "Selected Work", title: work.length + " projects shipped", lines: ["React, Tailwind & Supabase", "Click any frame to open it"] });
+      case "services-more":
+        return textTexture({ grad: "teal", tag: "Services", title: services.length + " services", lines: ["Business, portfolio & e-commerce", "Click any frame to open it"] });
+      case "stack-more":
+        return textTexture({ grad: "green", tag: "My stack", title: totalTech + " tools in my kit", lines: ["Front-end, backend & WordPress", "Click a frame for the full list"] });
+      case "process-more":
+        return textTexture({ grad: "amber", tag: "Process", title: "From idea to launch", lines: ["4 clear steps — no surprises", "Click any frame to open it"] });
+      case "stat-side": {
+        var leftS = d.side === "left";
+        var sa = findStat(leftS ? "Projects Completed" : "Client Rating");
+        var sb = findStat(leftS ? "Pending Projects" : "Client Trust");
+        return textTexture({
+          grad: leftS ? "green" : "lime",
+          tag: leftS ? "Projects" : "Rating & Trust",
+          title: sa ? sa.num + " " + sa.label : (leftS ? "10+ Projects" : "4.5 Rating"),
+          lines: sb ? [sb.num + " " + sb.label] : []
+        });
+      }
+      case "resume-more": {
+        var job = resumeCols[0] && resumeCols[0].items[0];
+        var edu = resumeCols[1] && resumeCols[1].items[0];
+        return textTexture({
+          grad: "rose", tag: "Experience", title: job ? job.title : "Experience",
+          lines: [(job ? job.org + " — " + job.date : ""), (edu ? edu.title + " — " + edu.date : "")].filter(function (x) { return x; })
+        });
+      }
       case "contact":
         return textTexture({ W: 1024, H: 640, grad: "lime", tag: "Let's Work Together", title: contact.heading, lines: [contact.text], big: true });
       default:
@@ -535,6 +595,89 @@
     scene.add(sparkles);
   }
 
+  // ---------- guide robot (v6) ----------
+  // A small robot runs on the lime track line ahead of the camera and
+  // tells you which section you have just arrived in, with a speech
+  // bubble floating above it.
+  var robot = null, robotFace = 1, robotRun = 0, robotZ = Z_MAX - 2.4;
+  var bubble = null, bubbleCanvas = null, bubbleCtx = null, bubbleTex = null, bubbleRoom = "";
+  function bubbleText(room) {
+    switch (room.id) {
+      case "hero": return ["Welcome!", "Ahmad Raza — Portfolio"];
+      case "about": return ["About", "Design eye. Developer hands."];
+      case "work": return ["Selected Work", work.length + " projects — click a frame"];
+      case "services": return ["Services", "What I can build for you"];
+      case "stack": return ["My Stack", totalTech + " tools & technologies"];
+      case "process": return ["Process", "From idea to launch in 4 steps"];
+      case "stats": { var st = findStat("Projects Completed"); return ["Stats", (st ? st.num : "10+") + " projects completed"]; }
+      case "resume": return ["Experience", "Work & education"];
+      case "contact": return ["Contact", "Let's work together!"];
+      default: return [room.name, ""];
+    }
+  }
+  function drawBubble(room) {
+    if (!bubbleCtx) return;
+    bubbleRoom = room.id;
+    var lines = bubbleText(room);
+    var ctx = bubbleCtx, W = 640, H = 200;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, 6, 6, W - 12, H - 44, 26); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 18, H - 40); ctx.lineTo(W / 2 + 18, H - 40); ctx.lineTo(W / 2, H - 8); ctx.closePath();
+    ctx.fill();
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#111111";
+    ctx.font = "800 44px Inter, system-ui, sans-serif";
+    ctx.fillText(lines[0], W / 2, 72);
+    if (lines[1]) {
+      ctx.fillStyle = "#374151";
+      var sz = fitFont(ctx, lines[1], W - 60, 30, 18, "500", "Inter, system-ui, sans-serif");
+      ctx.font = "500 " + sz + "px Inter, system-ui, sans-serif";
+      ctx.fillText(lines[1], W / 2, 128);
+    }
+    ctx.textAlign = "left";
+    bubbleTex.needsUpdate = true;
+  }
+  function buildRobot() {
+    robot = new THREE.Group();
+    var dark = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6, metalness: 0.4 });
+    var lime = new THREE.MeshBasicMaterial({ color: 0xa3e635 });
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.4, 0.24), dark);
+    body.position.y = 0.36; robot.add(body);
+    var chest = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.12), lime);
+    chest.position.set(0, 0.38, -0.125); robot.add(chest);
+    var head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.24, 0.24), dark);
+    head.position.y = 0.68; robot.add(head);
+    [-0.07, 0.07].forEach(function (ex) {
+      var eye = new THREE.Mesh(new THREE.PlaneGeometry(0.05, 0.07), lime);
+      eye.position.set(ex, 0.7, -0.125); robot.add(eye);
+    });
+    var ant = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.16, 6), dark);
+    ant.position.y = 0.88; robot.add(ant);
+    var tip = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), lime);
+    tip.position.y = 0.97; robot.add(tip);
+    [-1, 1].forEach(function (sx) {
+      var arm = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.28, 0.07), dark);
+      arm.position.set(sx * 0.22, 0.38, 0); arm.rotation.z = -sx * 0.25; robot.add(arm);
+      var foot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.07, 0.2), dark);
+      foot.position.set(sx * 0.09, 0.035, 0); robot.add(foot);
+    });
+    robot.scale.setScalar(0.62);
+    robot.position.set(0, 0, robotZ);
+    scene.add(robot);
+    bubbleCanvas = document.createElement("canvas");
+    bubbleCanvas.width = 640; bubbleCanvas.height = 200;
+    bubbleCtx = bubbleCanvas.getContext("2d");
+    bubbleTex = new THREE.CanvasTexture(bubbleCanvas);
+    if (THREE.SRGBColorSpace) bubbleTex.colorSpace = THREE.SRGBColorSpace;
+    bubble = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.47),
+      new THREE.MeshBasicMaterial({ map: bubbleTex, transparent: true, side: THREE.DoubleSide }));
+    bubble.position.set(0, 1.28, robotZ + 0.25);
+    scene.add(bubble);
+    drawBubble(ROOMS[0]);
+  }
+
   // ---------- overlay / chips / modal ----------
   var roomEl = document.getElementById("tourRoom");
   var titleEl = document.getElementById("tourTitle");
@@ -630,6 +773,32 @@
         '<input type="email" id="tcfEmail" placeholder="Your email" required>' +
         '<textarea id="tcfMsg" rows="3" placeholder="Write your message here..." required></textarea>' +
         '<button class="btn btn-accent" type="submit">Send Message</button></form>';
+    } else if (f.kind === "about-more") {
+      html = '<p class="g3d-tag mono">About</p><h3>What I care about</h3>' +
+        about.paras.slice(1).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + tagsHtml(about.pills);
+    } else if (f.kind === "work-more") {
+      html = '<p class="g3d-tag mono">Selected Work</p><h3>' + work.length + ' projects shipped</h3><p>Real products and client websites, built with React, Tailwind &amp; Supabase. Click any frame on the walls to open a project.</p>';
+    } else if (f.kind === "services-more") {
+      html = '<p class="g3d-tag mono">Services</p><h3>' + services.length + ' services</h3>' +
+        services.map(function (s) { return "<p><strong>" + esc(s.title) + "</strong> — " + esc(s.desc) + "</p>"; }).join("");
+    } else if (f.kind === "stack-more") {
+      html = '<p class="g3d-tag mono">My stack</p><h3>' + totalTech + ' tools in my kit</h3>' +
+        stack.map(function (g) { return "<p><strong>" + esc(g.head) + "</strong></p>" + tagsHtml(g.tags); }).join("");
+    } else if (f.kind === "process-more") {
+      html = '<p class="g3d-tag mono">Process</p><h3>From idea to launch</h3>' +
+        process.map(function (st) { return "<p><strong>" + esc(st.num) + ". " + esc(st.title) + "</strong> — " + esc(st.desc) + "</p>"; }).join("");
+    } else if (f.kind === "stat-side") {
+      var leftM = d.side === "left";
+      var ma = findStat(leftM ? "Projects Completed" : "Client Rating");
+      var mb = findStat(leftM ? "Pending Projects" : "Client Trust");
+      html = '<p class="g3d-tag mono">' + (leftM ? "Projects" : "Rating & Trust") + "</p><h3>By the numbers</h3>" +
+        [ma, mb].filter(function (x) { return x; }).map(function (st) { return "<p><strong>" + esc(st.num) + "</strong> — " + esc(st.label) + "</p>"; }).join("");
+    } else if (f.kind === "resume-more") {
+      var jobM = resumeCols[0] && resumeCols[0].items[0];
+      var eduM = resumeCols[1] && resumeCols[1].items[0];
+      html = '<p class="g3d-tag mono">Experience</p><h3>Freelance Web Developer</h3>' +
+        (jobM ? "<p><strong>" + esc(jobM.title) + "</strong><br><span class=\"muted\">" + esc(jobM.date) + " — " + esc(jobM.org) + "</span></p>" : "") +
+        (eduM ? "<p><strong>" + esc(eduM.title) + "</strong><br><span class=\"muted\">" + esc(eduM.date) + " — " + esc(eduM.org) + "</span></p>" : "");
     }
     modalOpen(html);
     var jump = document.querySelector('#tourModalBody [data-jump]');
@@ -816,6 +985,25 @@
       sparkles.material.opacity = 0.6 + 0.3 * Math.sin(now * 2.2);
     }
     updateOverlay();
+    // guide robot runs on the track line ahead of the camera, bobbing as
+    // it goes, and its bubble announces the room you just entered
+    if (robot) {
+      var wantZ = clamp(z - 2.4, Z_MIN + 0.5, Z_MAX - 0.5);
+      var dz = wantZ - robotZ;
+      robotZ += dz * 0.08;
+      var moving = Math.abs(dz) > 0.02;
+      if (moving) robotFace = dz < 0 ? 1 : -1;
+      robotRun += moving ? 0.35 : 0.06;
+      var targetRot = robotFace > 0 ? 0 : Math.PI;
+      robot.rotation.y += (targetRot - robot.rotation.y) * 0.1;
+      robot.position.z = robotZ;
+      robot.position.y = moving ? Math.abs(Math.sin(robotRun)) * 0.06 : Math.sin(now * 2) * 0.015;
+      if (bubble) {
+        bubble.position.z = robotZ + 0.25;
+        bubble.position.y = 1.28 + robot.position.y;
+      }
+      if (nearestRoom && nearestRoom.id !== bubbleRoom) drawBubble(nearestRoom);
+    }
     frames.forEach(function (f) {
       var want = (f === nearestFrame) ? 1.14 : 1;
       f.scale += (want - f.scale) * 0.12;
@@ -831,6 +1019,7 @@
   function start() {
     buildFrames();
     buildPosters();
+    buildRobot();
     resize();
     animate();
   }
