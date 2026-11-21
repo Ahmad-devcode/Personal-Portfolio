@@ -128,7 +128,10 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.6rem); font-weight: 800; letter-spacing: 
 .w3d-hint { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 8px; }
 @media (max-width: 640px) {
   .work-grid.work-3d-on { height: 540px; perspective: 1100px; }
-  .work-grid.work-3d-on .work-card { width: 300px; height: 480px; margin-left: -150px; }
+  .work-grid.work-3d-on .work-card { width: 280px; height: 500px; margin-left: -140px; }
+  .work-grid.work-3d-on .work-visual { height: 150px; }
+  .w3d-count { min-width: 140px; font-size: .78rem; }
+  .work-3d-nav { gap: 10px; }
 }
 .work-visual { height: 168px; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; position: relative; }
 .work-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.35)); }
@@ -370,5 +373,9 @@ body.tour-on .theme-dock, body.tour-on .wa-float { z-index: 70; }
   .tour-arrow { width: 40px; height: 40px; }
   .tour-arrow.left { left: 8px; }
   .tour-arrow.right { right: 8px; }
+  .tour-overlay { bottom: 88px; }
   .tour-modal-card { padding: 24px 20px; }
+  .wa-float { width: 48px; height: 48px; right: 14px; bottom: 14px; }
+  .theme-dock { right: 10px; }
+  .theme-dock .td-toggle { width: 42px; height: 42px; }
 }

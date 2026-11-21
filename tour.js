@@ -48,6 +48,13 @@
 // the 9 project cards sit on a curved wall in CSS 3D — drag, arrows or
 // click to bring a project forward; the centre card faces you straight.
 // tour.js is loaded with ?v=12.
+// v10 (responsive + hero poster fix): the hanging hero poster covered the
+// hero box's top-right corner at the starting view, so it is now smaller
+// (3.2 x 1.0) and hung higher (y 3.0), clear of the box. The tour camera
+// widens its FOV on narrow/portrait screens (78 below aspect 0.6, 72
+// below 0.85, 64 below 1.2, else 55) so rooms no longer feel like a tube
+// on phones. Classic view's 3D gallery re-metrics itself from the stage
+// width on small screens. tour.js is loaded with ?v=13.
 (function () {
   "use strict";
 
@@ -586,8 +593,8 @@
     var stringMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
     ROOMS.forEach(function (r, i) {
       var isHero = r.id === "hero";
-      var w = isHero ? 3.6 : 3.4, h = isHero ? 1.15 : 1.0;
-      var y = isHero ? 2.55 : 3.02;
+      var w = isHero ? 3.2 : 3.4, h = 1.0;
+      var y = isHero ? 3.0 : 3.02;
       var grp = new THREE.Group();
       grp.position.set(0, y, r.center);
       var back = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.1, h + 0.1),
@@ -614,8 +621,8 @@
     var N = 48, pos = new Float32Array(N * 3);
     sparkleSpeed = new Float32Array(N);
     for (var k = 0; k < N; k++) {
-      pos[k * 3] = (Math.random() * 2 - 1) * 2.0;
-      pos[k * 3 + 1] = 2.0 + Math.random() * 1.3;
+      pos[k * 3] = (Math.random() * 2 - 1) * 1.6;
+      pos[k * 3 + 1] = 2.5 + Math.random() * 1.0;
       pos[k * 3 + 2] = (Math.random() * 2 - 1) * 0.7;
       sparkleSpeed[k] = 0.15 + Math.random() * 0.35;
     }
@@ -1325,6 +1332,10 @@
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    // portrait phones see a much narrower slice of the room at a fixed
+    // vertical FOV, so widen the FOV as the screen gets narrower
+    var a = camera.aspect;
+    camera.fov = a < 0.6 ? 78 : a < 0.85 ? 72 : a < 1.2 ? 64 : 55;
     camera.updateProjectionMatrix();
   }
   window.addEventListener("resize", resize);

@@ -239,14 +239,22 @@
     if (nav) nav.hidden = false;
     if (hint) hint.hidden = false;
     var n = cards.length, active = 0, dragging = false, moved = false, startX = 0, dragDx = 0;
-    var SPACING = 235, ANGLE = 32, DEPTH = 300;
+    // the wall re-metrics itself from the stage width so phones get a
+    // tighter curve instead of one giant card with slivers at the edges
+    function metrics() {
+      var w = grid.clientWidth || 1000;
+      if (w < 480) return { spacing: 165, angle: 26, depth: 170 };
+      if (w < 760) return { spacing: 200, angle: 30, depth: 240 };
+      return { spacing: 235, angle: 32, depth: 300 };
+    }
     function layout(frac) {
+      var m = metrics();
       var pos = active + (frac || 0);
       cards.forEach(function (card, i) {
         var d = i - pos;
         var ad = Math.abs(d);
-        var z = DEPTH - Math.min(ad, 3) * 70;
-        card.style.transform = "translateX(" + (d * SPACING) + "px) rotateY(" + (d * ANGLE) + "deg) translateZ(" + z + "px)";
+        var z = m.depth - Math.min(ad, 3) * 70;
+        card.style.transform = "translateX(" + (d * m.spacing) + "px) rotateY(" + (d * m.angle) + "deg) translateZ(" + z + "px)";
         card.style.opacity = ad === 0 ? "1" : ad === 1 ? "0.85" : ad === 2 ? "0.55" : "0.3";
         card.classList.toggle("is-active", i === active && !frac);
         card.style.pointerEvents = ad > 3.2 ? "none" : "";
@@ -283,7 +291,7 @@
       if (!dragging) return;
       dragDx = ev.clientX - startX;
       if (Math.abs(dragDx) > 8) moved = true;
-      layout(-dragDx / 160);
+      layout(-dragDx / (metrics().spacing * 0.68));
     });
     function endDrag() {
       if (!dragging) return;
@@ -293,6 +301,7 @@
     }
     grid.addEventListener("pointerup", endDrag);
     grid.addEventListener("pointercancel", endDrag);
+    window.addEventListener("resize", function () { layout(0); });
     layout(0);
   })();
 
