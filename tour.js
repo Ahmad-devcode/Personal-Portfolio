@@ -1,9 +1,14 @@
-// Ahmad Raza — Portfolio 3D tour (v4)
+// Ahmad Raza — Portfolio 3D tour (v5)
 // The whole site as a walk-through gallery, like the "Websites in 2026" video:
 // hero first, then every section is a room. Frames hang on the walls — click a
 // frame to open that section's full details. Scroll / drag / arrow keys walk
 // you through the rooms. The classic 2D site stays in the DOM as the data
 // source (and as the fallback + "Classic view" toggle).
+// v5: side frames are angled toward the walkway so they face the camera;
+// a hanging poster floats over each room with the section name (the hero
+// room gets a big sparkling "AHMAD RAZA — PORTFOLIO" entrance poster);
+// frame text is fitted so nothing runs past its box; the portrait shows
+// the full photo, never cropped.
 (function () {
   "use strict";
 
@@ -108,54 +113,56 @@
     { id: "contact", name: "Contact", center: -118 }
   ];
   var WALL_X = 6, WALL_H = 4.2, HALL_Z0 = 8, HALL_Z1 = -124;
-  // frame spec: x, z, rotY (0 = end wall facing camera, +PI/2 = left wall, -PI/2 = right wall)
+  // frame spec: x, z, rotY (0 = end wall facing camera, ANG = left wall angled
+  // toward the walkway, -ANG = right wall angled toward the walkway)
   var frames = [];
   function F(x, z, rotY, w, h, kind, data) {
     frames.push({ x: x, z: z, rotY: rotY, w: w, h: h, kind: kind, data: data, title: data.title || data.name || kind });
   }
-  // hero room (end wall z=-8)
+  var ANG = Math.PI / 2 - 0.6; // side frames angled toward the walkway so they face the camera
+// hero room (end wall z=-8)
   F(-3.9, -7.92, 0, 4.6, 2.9, "hero", { title: "Ahmad Raza — Web Developer" });
-  F(3.9, -7.92, 0, 2.6, 2.6, "portrait", { title: "Ahmad Raza" });
-  F(-5.92, -2, Math.PI / 2, 2.9, 1.8, "terminal", { title: "$ whoami" });
+  F(3.9, -7.92, 0, 2.6, 3.7, "portrait", { title: "Ahmad Raza" });
+  F(-5.15, -2, ANG, 2.9, 1.8, "terminal", { title: "$ whoami" });
   // about room
-  F(-5.92, -16, Math.PI / 2, 2.9, 1.8, "about", { title: "About — Design eye. Developer hands." });
-  F(5.92, -16, -Math.PI / 2, 2.9, 1.8, "facts", { title: "Quick facts" });
+  F(-5.15, -16, ANG, 2.9, 1.8, "about", { title: "About — Design eye. Developer hands." });
+  F(5.15, -16, -ANG, 2.9, 1.8, "facts", { title: "Quick facts" });
   // work room (9 projects)
-  var workZ = { left: [-27, -31, -35, -39, -43], right: [-29, -33, -37, -41] };
+  var workZ = { left: [-27, -31, -35, -39, -42.5], right: [-29, -33, -37, -41] };
   work.forEach(function (pj, i) {
     var side = i % 2 === 0 ? "left" : "right";
     var list = side === "left" ? workZ.left : workZ.right;
     var idx = Math.floor(i / 2);
-    F(side === "left" ? -5.92 : 5.92, list[idx], side === "left" ? Math.PI / 2 : -Math.PI / 2, 2.9, 1.8, "project", pj);
+    F(side === "left" ? -5.15 : 5.15, list[idx], side === "left" ? ANG : -ANG, 2.9, 1.8, "project", pj);
   });
   // services room
   services.forEach(function (s, i) {
     var side = i % 2 === 0 ? "left" : "right";
     var z = side === "left" ? [-47, -51, -55][Math.floor(i / 2)] : [-49, -53, -57][Math.floor(i / 2)];
-    F(side === "left" ? -5.92 : 5.92, z, side === "left" ? Math.PI / 2 : -Math.PI / 2, 2.9, 1.8, "service", s);
+    F(side === "left" ? -5.15 : 5.15, z, side === "left" ? ANG : -ANG, 2.9, 1.8, "service", s);
   });
   // stack room
   stack.forEach(function (g, i) {
     var side = i % 2 === 0 ? "left" : "right";
     var z = side === "left" ? [-63, -67][Math.floor(i / 2)] : -65;
-    F(side === "left" ? -5.92 : 5.92, z, side === "left" ? Math.PI / 2 : -Math.PI / 2, 2.9, 1.8, "stack", g);
+    F(side === "left" ? -5.15 : 5.15, z, side === "left" ? ANG : -ANG, 2.9, 1.8, "stack", g);
   });
   // process room
   process.forEach(function (st, i) {
     var side = i % 2 === 0 ? "left" : "right";
     var z = side === "left" ? [-75, -79][Math.floor(i / 2)] : [-77, -81][Math.floor(i / 2)];
-    F(side === "left" ? -5.92 : 5.92, z, side === "left" ? Math.PI / 2 : -Math.PI / 2, 2.9, 1.8, "step", st);
+    F(side === "left" ? -5.15 : 5.15, z, side === "left" ? ANG : -ANG, 2.9, 1.8, "step", st);
   });
   // stats room (end wall z=-96)
-  F(-3.9, -95.92, 0, 4.6, 2.6, "stats", { title: "By the numbers" });
-  F(3.9, -95.92, 0, 2.6, 1.8, "badge", { title: hero.badge });
+  F(-3.9, -95.15, 0, 4.6, 2.6, "stats", { title: "By the numbers" });
+  F(3.9, -95.15, 0, 2.6, 1.8, "badge", { title: hero.badge });
   // resume room
   resumeCols.forEach(function (col, i) {
-    F(i === 0 ? -5.92 : 5.92, -104, i === 0 ? Math.PI / 2 : -Math.PI / 2, 2.9, 1.8, "resume", col);
+    F(i === 0 ? -5.15 : 5.15, -104, i === 0 ? ANG : -ANG, 2.9, 1.8, "resume", col);
   });
   // contact room (end wall z=-124)
-  F(-5.92, -117, Math.PI / 2, 2.9, 1.8, "contact-wa", { title: "WhatsApp" });
-  F(5.92, -117, -Math.PI / 2, 2.9, 1.8, "contact-email", { title: "Email" });
+  F(-5.15, -117, ANG, 2.9, 1.8, "contact-wa", { title: "WhatsApp" });
+  F(5.15, -117, -ANG, 2.9, 1.8, "contact-email", { title: "Email" });
   F(0, -123.92, 0, 5.4, 3.0, "contact", { title: contact.heading });
 
   // ---------- three.js scene ----------
@@ -260,7 +267,18 @@
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     return tex;
   }
-  // generic text frame: tag on top, big title, up to 4 small lines, "click to open" footer
+  // generic text frame: tag on top, big title, up to 4 small lines, "click to open" footer.
+  // Every string is measured and shrunk / wrapped / dropped so nothing ever
+  // runs past the frame's edges.
+  function fitFont(ctx, text, maxW, start, min, weight, family) {
+    var size = start;
+    ctx.font = weight + " " + size + "px " + family;
+    while (ctx.measureText(text).width > maxW && size > min) {
+      size -= 1;
+      ctx.font = weight + " " + size + "px " + family;
+    }
+    return size;
+  }
   function textTexture(o) {
     var W = o.W || 640, H = o.H || 400, s = W / 640;
     var b = baseCanvas(W, H, o.grad || "slate"), ctx = b.ctx;
@@ -270,13 +288,15 @@
         ctx.beginPath(); ctx.arc((30 + i * 24) * s, 22 * s, 7 * s, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
       });
       ctx.fillStyle = "rgba(255,255,255,0.88)";
-      ctx.font = 17 * s + "px 'JetBrains Mono', monospace";
+      var chromeSize = fitFont(ctx, o.chrome, W - 148 * s, 17 * s, 11 * s, "", "'JetBrains Mono', monospace");
+      ctx.font = chromeSize + "px 'JetBrains Mono', monospace";
       ctx.fillText(o.chrome, 108 * s, 28 * s);
     }
     var y = (o.chrome ? 84 : 56) * s;
     if (o.tag) {
       ctx.fillStyle = "rgba(255,255,255,0.92)";
-      ctx.font = "700 " + 19 * s + "px Inter, system-ui, sans-serif";
+      var tagSize = fitFont(ctx, o.tag.toUpperCase(), W - 80 * s, 19 * s, 13 * s, "700", "Inter, system-ui, sans-serif");
+      ctx.font = "700 " + tagSize + "px Inter, system-ui, sans-serif";
       ctx.fillText(o.tag.toUpperCase(), 40 * s, y); y += 30 * s;
     }
     var size = (o.big ? 54 : 40) * s;
@@ -293,7 +313,10 @@
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.font = 20 * s + "px Inter, system-ui, sans-serif";
       o.lines.slice(0, 3).forEach(function (ln) {
-        wrapText(ctx, ln, W - 80 * s).slice(0, 1).forEach(function (l2) { ctx.fillText(l2, 40 * s, y + 24 * s); y += 30 * s; });
+        wrapText(ctx, ln, W - 80 * s).slice(0, 2).forEach(function (l2) {
+          if (y + 24 * s > H - 66 * s) return;
+          ctx.fillText(l2, 40 * s, y + 24 * s); y += 30 * s;
+        });
       });
     }
     if (o.pills) {
@@ -301,6 +324,7 @@
       ctx.font = "600 " + 17 * s + "px Inter, system-ui, sans-serif";
       o.pills.slice(0, 3).forEach(function (t) {
         var w = ctx.measureText(t).width + 24 * s;
+        if (px + w > W - 40 * s) return; // skip pills that would run past the edge
         ctx.fillStyle = "rgba(255,255,255,0.16)";
         roundRect(ctx, px, py, w, 34 * s, 17 * s); ctx.fill();
         ctx.fillStyle = "#ffffff"; ctx.fillText(t, px + 12 * s, py + 23 * s);
@@ -312,23 +336,27 @@
     ctx.fillText("CLICK TO OPEN \u2197", W - 40 * s - ctx.measureText("CLICK TO OPEN \u2197").width, H - 26 * s);
     return toTexture(b.c);
   }
+  // Portrait frame: tall canvas matching the photo (812x1152), drawn with
+  // "contain" fit so the whole photo shows — never cropped.
   function portraitTexture() {
-    var S = 720;
-    var b = baseCanvas(S, S, "slate"), ctx = b.ctx;
+    var W = 720, H = 1024;
+    var b = baseCanvas(W, H, "slate"), ctx = b.ctx;
+    ctx.fillStyle = "#0b0b0b"; ctx.fillRect(0, 0, W, H);
     var img = hero.photo;
     if (img && img.naturalWidth) {
-      var iw = img.naturalWidth, ih = img.naturalHeight, side = Math.min(iw, ih);
-      ctx.drawImage(img, (iw - side) / 2, (ih - side) / 2, side, side, 0, 0, S, S);
+      var iw = img.naturalWidth, ih = img.naturalHeight;
+      var sc = Math.min(W / iw, H / ih), dw = iw * sc, dh = ih * sc;
+      ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
     } else {
       ctx.fillStyle = "#ffffff"; ctx.font = "800 64px Inter, sans-serif";
-      ctx.fillText("Ahmad Raza", 60, S / 2);
+      ctx.fillText("Ahmad Raza", 60, H / 2);
     }
-    ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.fillRect(0, S - 96, S, 96);
-    ctx.fillStyle = "#ffffff"; ctx.font = "700 34px Inter, sans-serif";
-    ctx.fillText("Ahmad Raza", 40, S - 52);
+    ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(0, H - 130, W, 130);
+    ctx.fillStyle = "#ffffff"; ctx.font = "700 36px Inter, sans-serif";
+    ctx.fillText("Ahmad Raza", 40, H - 74);
     ctx.font = "26px 'JetBrains Mono', monospace";
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.fillText("React & Front-End Developer", 40, S - 18);
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.fillText("React & Front-End Developer", 40, H - 34);
     return toTexture(b.c);
   }
   function statsTexture() {
@@ -422,6 +450,89 @@
       f.scale = 1; f.borderColor = new THREE.Color(0x262626);
       frameMeshes.push(panel);
     });
+  }
+
+  // ---------- hanging posters (v5) ----------
+  // One poster floats over every room, hanging from the ceiling and swaying
+  // gently in the air, with that section's name on it. The hero room gets
+  // the big sparkling "AHMAD RAZA — PORTFOLIO" entrance poster.
+  var posters = [];
+  var sparkles = null, sparkleSpeed = null;
+  function posterTexture(title, sub, heroMode) {
+    var W = heroMode ? 1280 : 1024, H = heroMode ? 420 : 300;
+    var c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    var ctx = c.getContext("2d");
+    var g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#101010"); g.addColorStop(1, "#050505");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "#a3e635"; ctx.lineWidth = heroMode ? 10 : 8;
+    roundRect(ctx, 12, 12, W - 24, H - 24, 26); ctx.stroke();
+    ctx.textAlign = "center";
+    if (heroMode) {
+      var sz = fitFont(ctx, "AHMAD RAZA", W - 120, 150, 60, "800", "Inter, system-ui, sans-serif");
+      ctx.font = "800 " + sz + "px Inter, system-ui, sans-serif";
+      ctx.fillStyle = "#a3e635";
+      ctx.fillText("AHMAD RAZA", W / 2, H / 2 - 10);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "500 46px 'JetBrains Mono', monospace";
+      ctx.fillText("P  O  R  T  F  O  L  I  O", W / 2, H / 2 + 78);
+    } else {
+      var sz2 = fitFont(ctx, title, W - 100, 96, 44, "800", "Inter, system-ui, sans-serif");
+      ctx.font = "800 " + sz2 + "px Inter, system-ui, sans-serif";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(title, W / 2, H / 2 + 6);
+      ctx.fillStyle = "#a3e635";
+      ctx.font = "500 30px 'JetBrains Mono', monospace";
+      ctx.fillText(sub, W / 2, H - 52);
+    }
+    ctx.textAlign = "left";
+    return toTexture(c);
+  }
+  function buildPosters() {
+    var stringMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
+    ROOMS.forEach(function (r, i) {
+      var isHero = r.id === "hero";
+      var w = isHero ? 4.7 : 3.4, h = isHero ? 1.55 : 1.0;
+      var y = isHero ? 2.92 : 3.02;
+      var grp = new THREE.Group();
+      grp.position.set(0, y, r.center);
+      var back = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.1, h + 0.1),
+        new THREE.MeshBasicMaterial({ color: 0x111111, side: THREE.DoubleSide }));
+      back.position.z = -0.03;
+      grp.add(back);
+      var panel = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial({
+          map: posterTexture(isHero ? "AHMAD RAZA" : r.name.toUpperCase(),
+            isHero ? "" : "ROOM " + (i + 1) + " / " + ROOMS.length, isHero),
+          side: THREE.DoubleSide
+        }));
+      grp.add(panel);
+      var strLen = WALL_H - (y + h / 2);
+      [-1, 1].forEach(function (sx) {
+        var str = new THREE.Mesh(new THREE.BoxGeometry(0.025, strLen, 0.025), stringMat);
+        str.position.set(sx * (w / 2 - 0.35), h / 2 + strLen / 2, 0);
+        grp.add(str);
+      });
+      scene.add(grp);
+      posters.push({ grp: grp, baseY: y, phase: i * 1.3 });
+    });
+    // sparkles drifting around the hero entrance poster
+    var N = 130, pos = new Float32Array(N * 3);
+    sparkleSpeed = new Float32Array(N);
+    for (var k = 0; k < N; k++) {
+      pos[k * 3] = (Math.random() * 2 - 1) * 2.8;
+      pos[k * 3 + 1] = 2.1 + Math.random() * 1.8;
+      pos[k * 3 + 2] = (Math.random() * 2 - 1) * 0.9;
+      sparkleSpeed[k] = 0.15 + Math.random() * 0.35;
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    sparkles = new THREE.Points(geo, new THREE.PointsMaterial({
+      color: 0xd9f99d, size: 0.075, transparent: true, opacity: 0.85,
+      blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+    }));
+    scene.add(sparkles);
   }
 
   // ---------- overlay / chips / modal ----------
@@ -688,6 +799,22 @@
     var bob = speed > 0.05 ? Math.sin(bobPhase) * 0.02 : 0;
     camera.position.set(0, 1.7 + bob, z);
     camera.lookAt(Math.sin(yaw) * 8, 1.45, z - Math.cos(yaw) * 8);
+    // hanging posters sway gently in the air; sparkles drift and twinkle
+    var now = performance.now() / 1000;
+    posters.forEach(function (p) {
+      p.grp.position.y = p.baseY + Math.sin(now * 1.1 + p.phase) * 0.07;
+      p.grp.rotation.z = Math.sin(now * 0.8 + p.phase) * 0.025;
+      p.grp.rotation.y = Math.sin(now * 0.5 + p.phase) * 0.06;
+    });
+    if (sparkles) {
+      var arr = sparkles.geometry.attributes.position.array;
+      for (var si = 0; si < sparkleSpeed.length; si++) {
+        arr[si * 3 + 1] += sparkleSpeed[si] * 0.016;
+        if (arr[si * 3 + 1] > 3.95) arr[si * 3 + 1] = 2.1;
+      }
+      sparkles.geometry.attributes.position.needsUpdate = true;
+      sparkles.material.opacity = 0.6 + 0.3 * Math.sin(now * 2.2);
+    }
     updateOverlay();
     frames.forEach(function (f) {
       var want = (f === nearestFrame) ? 1.14 : 1;
@@ -703,6 +830,7 @@
   // ---------- start ----------
   function start() {
     buildFrames();
+    buildPosters();
     resize();
     animate();
   }
