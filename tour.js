@@ -35,6 +35,11 @@
 // theme dock moves from the bottom bar to a side palette icon that
 // opens the themes on tap. tour.js is loaded with ?v=10 so browsers
 // fetch the new file, not a cached copy.
+// v8.1: the hero end-wall box was too wide and too far left — its left
+// edge hung past the wall corner and slid off-screen as you walked in,
+// cutting the text ("MAD RAZA", "CLICK TO OPE"). It is now 3.8 wide at
+// x=-2.9, fully inside the wall and fully visible from the start and
+// while walking. tour.js is loaded with ?v=11.
 (function () {
   "use strict";
 
@@ -158,7 +163,7 @@
   }
   var ANG = Math.PI / 2 - 0.6; // side frames angled toward the walkway so they face the camera
 // hero room (end wall z=-8); portrait now on the right wall, full photo
-  F(-3.9, -7.92, 0, 4.6, 2.9, "hero", { title: "Ahmad Raza — Web Developer" });
+  F(-2.9, -7.92, 0, 3.8, 2.6, "hero", { title: "Ahmad Raza — Web Developer" });
   F(5.15, -4, -ANG, 2.6, 3.7, "portrait", { title: "Ahmad Raza" });
   F(-5.15, -2, ANG, 2.9, 1.8, "terminal", { title: "$ whoami" });
   // about room — frames on all three sides (left, right, front wall)
