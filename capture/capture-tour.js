@@ -1487,7 +1487,8 @@
   // ---------- capture mode (video frames; capture.html?capture=1 only) ----------
   // Cycles the rooms in a monotonic walk, waits for the camera to settle,
   // and downloads each view as a PNG. Never runs for normal visitors.
-  if (new URLSearchParams(location.search).get("capture") === "1") {
+  var CAP_Q = new URLSearchParams(location.search);
+  if (CAP_Q.get("capture") === "1" || CAP_Q.get("shot")) {
     var CAP_SHOTS = [
       { z: 5, yaw: 0, name: "01-hero-start" },
       { z: 2, yaw: 0.55, name: "02-hero-meeting" },
@@ -1517,7 +1518,7 @@
     }
     function capWaitStart() {
       if (wrap.hidden) { setTimeout(capWaitStart, 200); return; }
-      var only = parseInt(new URLSearchParams(location.search).get("shot") || "0", 10);
+      var only = parseInt(CAP_Q.get("shot") || "0", 10);
       if (only >= 1 && only <= CAP_SHOTS.length) {
         var one = CAP_SHOTS[only - 1];
         targetZ = one.z; targetYaw = one.yaw;
