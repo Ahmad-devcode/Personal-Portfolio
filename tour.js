@@ -14,8 +14,6 @@
 // three sides; stats add 10+ completed / 5 pending / 4.5 rating / 90%
 // trust (read from data-target, so the tour never shows 0s); the stack
 // matches the GitHub profile (TypeScript, Vite, Python, VS Code added).
-// tour.js is loaded with ?v=6 so browsers fetch the new file, not a
-// cached copy.
 // v6.1: stats labels fixed (the label span was read as the count span,
 // so every label showed "0"); the robot now faces the camera with its
 // glowing eyes toward you, stands farther ahead so it is fully in view,
@@ -23,6 +21,14 @@
 // v6.2: stats board second row was drawn off-canvas (its y was scaled
 // twice), so only one row showed; rows re-laid out in design units and
 // the bottom "CLICK TO OPEN" line removed from this dense board.
+// v7: every room gets a table + chairs; the Resume room is a study (desk,
+// bookshelf, lamp, laptop); the Work room is a TV lounge (screen cycling
+// the projects + sofa); the Stack room is a kitchen (shelves of labelled
+// boxes, one per tool); the robot's speech bubble is gone — robot only;
+// the hero poster is smaller, cleaner and lower so the walk hint no
+// longer crosses it; the stats board is narrower with inner padding so
+// its first column is never clipped. tour.js is loaded with ?v=9 so
+// browsers fetch the new file, not a cached copy.
 (function () {
   "use strict";
 
@@ -186,7 +192,7 @@
   });
   F(4.0, -87.92, 0, 4.0, 2.6, "process-more", { title: "From idea to launch" });
   // stats room (end wall z=-96) — new stats as side frames too
-  F(-3.9, -95.15, 0, 4.6, 2.6, "stats", { title: "By the numbers" });
+  F(-3.4, -95.15, 0, 4.2, 2.3, "stats", { title: "By the numbers" });
   F(3.9, -95.15, 0, 2.6, 1.8, "badge", { title: hero.badge });
   F(-5.15, -92, ANG, 2.9, 1.8, "stat-side", { title: "Projects", side: "left" });
   F(5.15, -92, -ANG, 2.9, 1.8, "stat-side", { title: "Rating & Trust", side: "right" });
@@ -399,14 +405,14 @@
     var b = baseCanvas(W, H, "lime"), ctx = b.ctx;
     ctx.fillStyle = "rgba(255,255,255,0.92)";
     ctx.font = "700 " + 19 * s + "px Inter, system-ui, sans-serif";
-    ctx.fillText("BY THE NUMBERS", 40 * s, 64 * s);
+    ctx.fillText("BY THE NUMBERS", 64 * s, 64 * s);
     ctx.fillStyle = "#ffffff";
     ctx.font = "800 " + 34 * s + "px Inter, system-ui, sans-serif";
-    ctx.fillText("Things I've built & shipped.", 40 * s, 116 * s);
-    var colW = (W - 80 * s) / 4, perRow = 4;
+    ctx.fillText("Things I've built & shipped.", 64 * s, 116 * s);
+    var colW = (W - 128 * s) / 4, perRow = 4;
     stats.forEach(function (st, i) {
       var row = Math.floor(i / perRow), col = i % perRow;
-      var x = 40 * s + col * colW;
+      var x = 64 * s + col * colW;
       var numY = (row === 0 ? 172 : 272) * s, labY = (row === 0 ? 200 : 300) * s;
       ctx.fillStyle = "#ffffff";
       var ns = fitFont(ctx, st.num, colW - 16 * s, 64 * s, 34 * s, "800", "Inter, system-ui, sans-serif");
@@ -530,17 +536,21 @@
     var g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, "#101010"); g.addColorStop(1, "#050505");
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = "#a3e635"; ctx.lineWidth = heroMode ? 10 : 8;
+    ctx.strokeStyle = "#a3e635"; ctx.lineWidth = heroMode ? 6 : 8;
     roundRect(ctx, 12, 12, W - 24, H - 24, 26); ctx.stroke();
     ctx.textAlign = "center";
     if (heroMode) {
-      var sz = fitFont(ctx, "AHMAD RAZA", W - 120, 150, 60, "800", "Inter, system-ui, sans-serif");
+      var sz = fitFont(ctx, "AHMAD RAZA", W - 140, 132, 60, "800", "Inter, system-ui, sans-serif");
       ctx.font = "800 " + sz + "px Inter, system-ui, sans-serif";
       ctx.fillStyle = "#a3e635";
-      ctx.fillText("AHMAD RAZA", W / 2, H / 2 - 10);
+      ctx.fillText("AHMAD RAZA", W / 2, H / 2 - 34);
       ctx.fillStyle = "#ffffff";
-      ctx.font = "500 46px 'JetBrains Mono', monospace";
-      ctx.fillText("P  O  R  T  F  O  L  I  O", W / 2, H / 2 + 78);
+      ctx.font = "500 40px 'JetBrains Mono', monospace";
+      ctx.fillText("P  O  R  T  F  O  L  I  O", W / 2, H / 2 + 44);
+      ctx.fillStyle = "#a3e635";
+      var sub = fitFont(ctx, "REACT  &  FRONT-END  DEVELOPER", W - 200, 26, 14, "500", "'JetBrains Mono', monospace");
+      ctx.font = "500 " + sub + "px 'JetBrains Mono', monospace";
+      ctx.fillText("REACT  &  FRONT-END  DEVELOPER", W / 2, H / 2 + 108);
     } else {
       var sz2 = fitFont(ctx, title, W - 100, 96, 44, "800", "Inter, system-ui, sans-serif");
       ctx.font = "800 " + sz2 + "px Inter, system-ui, sans-serif";
@@ -557,8 +567,8 @@
     var stringMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
     ROOMS.forEach(function (r, i) {
       var isHero = r.id === "hero";
-      var w = isHero ? 4.7 : 3.4, h = isHero ? 1.55 : 1.0;
-      var y = isHero ? 2.92 : 3.02;
+      var w = isHero ? 3.6 : 3.4, h = isHero ? 1.15 : 1.0;
+      var y = isHero ? 2.55 : 3.02;
       var grp = new THREE.Group();
       grp.position.set(0, y, r.center);
       var back = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.1, h + 0.1),
@@ -582,67 +592,291 @@
       posters.push({ grp: grp, baseY: y, phase: i * 1.3 });
     });
     // sparkles drifting around the hero entrance poster
-    var N = 130, pos = new Float32Array(N * 3);
+    var N = 48, pos = new Float32Array(N * 3);
     sparkleSpeed = new Float32Array(N);
     for (var k = 0; k < N; k++) {
-      pos[k * 3] = (Math.random() * 2 - 1) * 2.8;
-      pos[k * 3 + 1] = 2.1 + Math.random() * 1.8;
-      pos[k * 3 + 2] = (Math.random() * 2 - 1) * 0.9;
+      pos[k * 3] = (Math.random() * 2 - 1) * 2.0;
+      pos[k * 3 + 1] = 2.0 + Math.random() * 1.3;
+      pos[k * 3 + 2] = (Math.random() * 2 - 1) * 0.7;
       sparkleSpeed[k] = 0.15 + Math.random() * 0.35;
     }
     var geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     sparkles = new THREE.Points(geo, new THREE.PointsMaterial({
-      color: 0xd9f99d, size: 0.075, transparent: true, opacity: 0.85,
+      color: 0xd9f99d, size: 0.06, transparent: true, opacity: 0.7,
       blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
     }));
     scene.add(sparkles);
   }
 
-  // ---------- guide robot (v6) ----------
-  // A small robot runs on the lime track line ahead of the camera and
-  // tells you which section you have just arrived in, with a speech
-  // bubble floating above it.
-  var robot = null, robotRun = 0, robotZ = Z_MAX - 3.5;
-  var bubble = null, bubbleCanvas = null, bubbleCtx = null, bubbleTex = null, bubbleRoom = "";
-  function bubbleText(room) {
-    switch (room.id) {
-      case "hero": return ["Welcome!", "Ahmad Raza — Portfolio"];
-      case "about": return ["About", "Design eye. Developer hands."];
-      case "work": return ["Selected Work", work.length + " projects — click a frame"];
-      case "services": return ["Services", "What I can build for you"];
-      case "stack": return ["My Stack", totalTech + " tools & technologies"];
-      case "process": return ["Process", "From idea to launch in 4 steps"];
-      case "stats": { var st = findStat("Projects Completed"); return ["Stats", (st ? st.num : "10+") + " projects completed"]; }
-      case "resume": return ["Experience", "Work & education"];
-      case "contact": return ["Contact", "Let's work together!"];
-      default: return [room.name, ""];
-    }
+  // ---------- furniture (v7) ----------
+  // Every room gets a table + chairs, tucked against a side wall below
+  // the frames so nothing is hidden. The Resume room is a study (desk,
+  // bookshelf, lamp, laptop); the Work room is a TV lounge (big screen
+  // cycling the projects + sofa); the Stack room is a kitchen (shelves
+  // of labelled boxes, one box per tool — like jars in a cupboard).
+  var woodMat = new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 0.8, metalness: 0 });
+  var woodDark = new THREE.MeshStandardMaterial({ color: 0x241a12, roughness: 0.85, metalness: 0 });
+  var fabricMat = new THREE.MeshStandardMaterial({ color: 0x1e1e26, roughness: 1, metalness: 0 });
+  var cushionMat = new THREE.MeshStandardMaterial({ color: 0x2e2e3a, roughness: 1, metalness: 0 });
+  var shelfMat = new THREE.MeshStandardMaterial({ color: 0x191919, roughness: 0.9, metalness: 0.1 });
+  var limeTrimMat = new THREE.MeshBasicMaterial({ color: 0xa3e635 });
+  var BOOK_COLORS = [0xa3e635, 0x2563eb, 0xd97706, 0xe11d48, 0x0d9488, 0x7c3aed, 0xf5f5f5, 0x65a30d];
+
+  function boxMesh(w, h, d, mat, x, y, z, parent) {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+    m.position.set(x, y, z);
+    (parent || scene).add(m);
+    return m;
   }
-  function drawBubble(room) {
-    if (!bubbleCtx) return;
-    bubbleRoom = room.id;
-    var lines = bubbleText(room);
-    var ctx = bubbleCtx, W = 640, H = 200;
-    ctx.clearRect(0, 0, W, H);
+  function makeTable(x, z, ry, w, d, h) {
+    w = w || 0.85; d = d || 1.35; h = h || 0.75;
+    var g = new THREE.Group();
+    g.position.set(x, 0, z); g.rotation.y = ry || 0;
+    var top = new THREE.Mesh(new THREE.BoxGeometry(w, 0.07, d), woodMat);
+    top.position.y = h - 0.035; g.add(top);
+    var edge = new THREE.Mesh(new THREE.BoxGeometry(w, 0.025, d), limeTrimMat);
+    edge.position.y = h - 0.08; g.add(edge);
+    [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(function (s) {
+      var leg = new THREE.Mesh(new THREE.BoxGeometry(0.07, h - 0.07, 0.07), woodDark);
+      leg.position.set(s[0] * (w / 2 - 0.06), (h - 0.07) / 2, s[1] * (d / 2 - 0.06));
+      g.add(leg);
+    });
+    scene.add(g);
+    return g;
+  }
+  function makeChair(x, z, ry) {
+    var g = new THREE.Group();
+    g.position.set(x, 0, z); g.rotation.y = ry || 0;
+    var seat = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.05, 0.46), fabricMat);
+    seat.position.y = 0.45; g.add(seat);
+    var back = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.55, 0.05), fabricMat);
+    back.position.set(0, 0.74, -0.205); g.add(back);
+    var strip = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.04, 0.055), limeTrimMat);
+    strip.position.set(0, 1.0, -0.205); g.add(strip);
+    [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(function (s) {
+      var leg = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.45, 0.05), woodDark);
+      leg.position.set(s[0] * 0.19, 0.225, s[1] * 0.19);
+      g.add(leg);
+    });
+    scene.add(g);
+    return g;
+  }
+  function tableSet(x, z, side) {
+    // side -1 = table on the left wall (chairs face -x), +1 = right wall
+    makeTable(x, z, 0);
+    var cx = x - side * 0.78;
+    makeChair(cx, z - 0.55, side > 0 ? Math.PI / 2 : -Math.PI / 2);
+    makeChair(cx, z + 0.55, side > 0 ? Math.PI / 2 : -Math.PI / 2);
+  }
+  function makeSofa(x, z) {
+    var g = new THREE.Group();
+    g.position.set(x, 0, z);
+    var base = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.38, 0.9), fabricMat);
+    base.position.y = 0.26; g.add(base);
+    var back = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.72, 0.24), fabricMat);
+    back.position.set(0, 0.62, 0.33); g.add(back);
+    [-1, 1].forEach(function (s) {
+      var arm = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.5, 0.9), fabricMat);
+      arm.position.set(s * 0.88, 0.5, 0); g.add(arm);
+      var cu = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.12, 0.78), cushionMat);
+      cu.position.set(s * 0.42, 0.5, -0.02); g.add(cu);
+    });
+    var pillow = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.12), limeTrimMat);
+    pillow.position.set(-0.55, 0.62, 0.18); pillow.rotation.z = 0.15; g.add(pillow);
+    scene.add(g);
+    return g;
+  }
+  // TV screen cycling through the projects (Work room = TV lounge)
+  var tvCanvas = null, tvCtx = null, tvTex = null, tvIdx = 0;
+  function drawTV() {
+    if (!tvCtx || !work.length) return;
+    var W = 1024, H = 576, ctx = tvCtx;
+    ctx.fillStyle = "#050505"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#a3e635";
+    ctx.font = "700 30px 'JetBrains Mono', monospace";
+    ctx.fillText("SELECTED WORK", 48, 64);
+    var pj = work[tvIdx % work.length];
     ctx.fillStyle = "#ffffff";
-    roundRect(ctx, 6, 6, W - 12, H - 44, 26); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(W / 2 - 18, H - 40); ctx.lineTo(W / 2 + 18, H - 40); ctx.lineTo(W / 2, H - 8); ctx.closePath();
-    ctx.fill();
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#111111";
-    ctx.font = "800 44px Inter, system-ui, sans-serif";
-    ctx.fillText(lines[0], W / 2, 72);
-    if (lines[1]) {
-      ctx.fillStyle = "#374151";
-      var sz = fitFont(ctx, lines[1], W - 60, 30, 18, "500", "Inter, system-ui, sans-serif");
-      ctx.font = "500 " + sz + "px Inter, system-ui, sans-serif";
-      ctx.fillText(lines[1], W / 2, 128);
-    }
-    ctx.textAlign = "left";
-    bubbleTex.needsUpdate = true;
+    var sz = fitFont(ctx, pj.title, W - 96, 84, 34, "800", "Inter, system-ui, sans-serif");
+    ctx.font = "800 " + sz + "px Inter, system-ui, sans-serif";
+    ctx.fillText(pj.title, 48, 170);
+    ctx.fillStyle = "rgba(255,255,255,0.75)";
+    ctx.font = "28px Inter, system-ui, sans-serif";
+    wrapText(ctx, pj.desc, W - 96).slice(0, 2).forEach(function (ln, i) {
+      ctx.fillText(ln, 48, 230 + i * 40);
+    });
+    ctx.fillStyle = "#a3e635";
+    ctx.font = "600 26px 'JetBrains Mono', monospace";
+    ctx.fillText((pj.tags || []).slice(0, 4).join("  ·  "), 48, 340);
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.font = "24px 'JetBrains Mono', monospace";
+    ctx.fillText(((tvIdx % work.length) + 1) + " / " + work.length + "  —  click a frame to open", 48, H - 48);
+    tvTex.needsUpdate = true;
   }
+  function buildTV() {
+    var frame = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.0, 0.1),
+      new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5, metalness: 0.4 }));
+    frame.position.set(-4.0, 1.9, -43.92);
+    scene.add(frame);
+    tvCanvas = document.createElement("canvas");
+    tvCanvas.width = 1024; tvCanvas.height = 576;
+    tvCtx = tvCanvas.getContext("2d");
+    tvTex = new THREE.CanvasTexture(tvCanvas);
+    if (THREE.SRGBColorSpace) tvTex.colorSpace = THREE.SRGBColorSpace;
+    var screen = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.8),
+      new THREE.MeshBasicMaterial({ map: tvTex }));
+    screen.position.set(-4.0, 1.9, -43.86);
+    scene.add(screen);
+    boxMesh(2.4, 0.38, 0.5, woodDark, -4.0, 0.19, -43.6);
+    drawTV();
+    setInterval(function () { tvIdx++; drawTV(); }, 3000);
+  }
+  // Study room (Resume room): desk, laptop, books, lamp, bookshelf
+  function buildStudy() {
+    var rz = -104;
+    makeTable(4.6, rz, 0, 0.8, 1.9, 0.78);
+    boxMesh(0.6, 0.4, 0.7, woodDark, 4.6, 0.5, rz - 0.55);
+    makeChair(3.9, rz, Math.PI / 2);
+    var lap = new THREE.Group();
+    lap.position.set(4.6, 0.79, rz - 0.3);
+    var lbase = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.3),
+      new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4, metalness: 0.6 }));
+    lap.add(lbase);
+    var lscr = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.26), limeTrimMat);
+    lscr.position.set(0, 0.14, -0.14);
+    lscr.rotation.y = -Math.PI / 2; lscr.rotation.x = -0.2;
+    lap.add(lscr);
+    scene.add(lap);
+    [[0, 0xa3e635, 0], [1, 0x2563eb, 0.12], [2, 0xd97706, -0.08]].forEach(function (b) {
+      var bk = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.045, 0.24),
+        new THREE.MeshStandardMaterial({ color: b[1], roughness: 0.8 }));
+      bk.position.set(4.6, 0.8 + b[0] * 0.05, rz + 0.55);
+      bk.rotation.y = b[2];
+      scene.add(bk);
+    });
+    var lamp = new THREE.Group();
+    lamp.position.set(4.6, 0.79, rz + 0.25);
+    var lbase2 = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 0.03, 12), woodDark);
+    lamp.add(lbase2);
+    var stem = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.3, 8), woodDark);
+    stem.position.y = 0.16; lamp.add(stem);
+    var shade = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.15, 12, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xa3e635, roughness: 0.6, side: THREE.DoubleSide }));
+    shade.position.y = 0.36; lamp.add(shade);
+    scene.add(lamp);
+    var warm = new THREE.PointLight(0xffd9a0, 0.5, 3.5, 2);
+    warm.position.set(4.6, 1.35, rz + 0.25);
+    scene.add(warm);
+    // open-front bookshelf on the end wall, left side
+    var sh = new THREE.Group();
+    sh.position.set(-4.0, 0, -111.5);
+    var bk1 = new THREE.Mesh(new THREE.BoxGeometry(1.7, 2.3, 0.05), shelfMat);
+    bk1.position.set(0, 1.15, -0.125); sh.add(bk1);
+    [-1, 1].forEach(function (s) {
+      var side = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.3, 0.3), shelfMat);
+      side.position.set(s * 0.825, 1.15, 0); sh.add(side);
+    });
+    var bot = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.05, 0.3), shelfMat);
+    bot.position.set(0, 0.025, 0); sh.add(bot);
+    var top = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.05, 0.3), shelfMat);
+    top.position.set(0, 2.275, 0); sh.add(top);
+    var shelfYs = [0.45, 1.0, 1.55];
+    shelfYs.forEach(function (sy) {
+      var s2 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.04, 0.26), woodDark);
+      s2.position.set(0, sy, 0); sh.add(s2);
+    });
+    for (var s = 0; s < 3; s++) {
+      for (var k = 0; k < 8; k++) {
+        var hh = 0.34 + ((s * 8 + k) % 3) * 0.04;
+        var bk2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, hh, 0.2),
+          new THREE.MeshStandardMaterial({ color: BOOK_COLORS[(s * 8 + k) % BOOK_COLORS.length], roughness: 0.85 }));
+        bk2.position.set(-0.62 + k * 0.17, shelfYs[s] + hh / 2 + 0.02, 0.02);
+        sh.add(bk2);
+      }
+    }
+    scene.add(sh);
+  }
+  // Kitchen (Stack room): shelves of labelled boxes, one box per tool
+  function boxLabel(text, color) {
+    var c = document.createElement("canvas");
+    c.width = 256; c.height = 128;
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = color; ctx.fillRect(0, 0, 256, 128);
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    var sz = fitFont(ctx, text, 220, 44, 18, "800", "Inter, system-ui, sans-serif");
+    ctx.font = "800 " + sz + "px Inter, system-ui, sans-serif";
+    ctx.fillText(text, 128, 74);
+    ctx.textAlign = "left";
+    var t = new THREE.CanvasTexture(c);
+    if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+  function buildKitchen() {
+    var items = [];
+    stack.forEach(function (g, gi) {
+      var color = ["#65a30d", "#2563eb", "#0d9488"][gi % 3];
+      g.tags.forEach(function (t) { items.push({ name: t, color: color, head: g.head }); });
+    });
+    var stackFrames = frames.filter(function (f) { return f.kind === "stack"; });
+    function frameFor(head) {
+      for (var i = 0; i < stackFrames.length; i++) {
+        if (stackFrames[i].data.head === head) return stackFrames[i];
+      }
+      return stackFrames[0];
+    }
+    [-1, 1].forEach(function (side) {
+      var rx = side * 4.7, rz = -66.3;
+      [-2.5, 2.5].forEach(function (dz) {
+        boxMesh(0.55, 2.15, 0.06, shelfMat, rx, 1.075, rz + dz);
+      });
+      [0.5, 1.05, 1.6].forEach(function (sy) {
+        boxMesh(0.55, 0.05, 5.0, shelfMat, rx, sy, rz);
+      });
+      boxMesh(0.55, 0.05, 5.0, shelfMat, rx, 2.15, rz);
+      for (var s = 0; s < 3; s++) {
+        for (var k = 0; k < 4; k++) {
+          var idx = (side < 0 ? 0 : 12) + s * 4 + k;
+          var item = items[idx];
+          if (!item) break;
+          var bz = rz - 1.8 + k * 1.2;
+          var by = [0.5, 1.05, 1.6][s] + 0.26;
+          var bmat = new THREE.MeshStandardMaterial({ color: new THREE.Color(item.color), roughness: 0.7, metalness: 0.1 });
+          var b = boxMesh(0.45, 0.46, 0.85, bmat, rx, by, bz);
+          var lab = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.4),
+            new THREE.MeshBasicMaterial({ map: boxLabel(item.name, item.color) }));
+          lab.position.set(rx - side * 0.24, by, bz);
+          lab.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
+          scene.add(lab);
+          var fr = frameFor(item.head);
+          if (fr) {
+            b.userData.frame = fr; frameMeshes.push(b);
+            lab.userData.frame = fr; frameMeshes.push(lab);
+          }
+        }
+      }
+    });
+  }
+  function buildFurniture() {
+    tableSet(4.7, 1.5, 1);       // hero
+    tableSet(-4.7, -16, -1);     // about
+    tableSet(4.7, -30, 1);       // work (TV lounge adds sofa + screen)
+    tableSet(-4.7, -52, -1);     // services
+    tableSet(-4.7, -62.6, -1);   // stack (kitchen adds the shelves)
+    tableSet(4.7, -80, 1);       // process
+    tableSet(-4.7, -92, -1);     // stats
+    tableSet(4.7, -118, 1);      // contact
+    buildStudy();                // resume room = study room
+    buildTV();                   // work room = TV lounge
+    makeSofa(-3.4, -40.2);
+    makeTable(-3.4, -42.2, 0, 0.6, 1.1, 0.45); // coffee table
+    buildKitchen();              // stack room = kitchen
+  }
+
+  // ---------- guide robot (v6; v7: no speech bubble — robot only) ----------
+  // A small robot runs on the lime track line ahead of the camera.
+  var robot = null, robotRun = 0, robotZ = Z_MAX - 3.5;
   function buildRobot() {
     robot = new THREE.Group();
     // the face is on the +z side: the camera follows behind the robot, so
@@ -674,16 +908,6 @@
     robot.scale.setScalar(0.8);
     robot.position.set(0, 0, robotZ);
     scene.add(robot);
-    bubbleCanvas = document.createElement("canvas");
-    bubbleCanvas.width = 640; bubbleCanvas.height = 200;
-    bubbleCtx = bubbleCanvas.getContext("2d");
-    bubbleTex = new THREE.CanvasTexture(bubbleCanvas);
-    if (THREE.SRGBColorSpace) bubbleTex.colorSpace = THREE.SRGBColorSpace;
-    bubble = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.47),
-      new THREE.MeshBasicMaterial({ map: bubbleTex, transparent: true, side: THREE.DoubleSide }));
-    bubble.position.set(0, 1.28, robotZ + 0.25);
-    scene.add(bubble);
-    drawBubble(ROOMS[0]);
   }
 
   // ---------- overlay / chips / modal ----------
@@ -993,8 +1217,7 @@
       sparkles.material.opacity = 0.6 + 0.3 * Math.sin(now * 2.2);
     }
     updateOverlay();
-    // guide robot runs on the track line ahead of the camera, bobbing as
-    // it goes, and its bubble announces the room you just entered
+    // guide robot runs on the track line ahead of the camera, bobbing as it goes
     if (robot) {
       var wantZ = clamp(z - 3.5, Z_MIN + 0.5, Z_MAX - 0.5);
       var dz = wantZ - robotZ;
@@ -1005,11 +1228,6 @@
       robot.rotation.y = 0;
       robot.position.z = robotZ;
       robot.position.y = moving ? Math.abs(Math.sin(robotRun)) * 0.06 : Math.sin(now * 2) * 0.015;
-      if (bubble) {
-        bubble.position.z = robotZ + 0.25;
-        bubble.position.y = 1.28 + robot.position.y;
-      }
-      if (nearestRoom && nearestRoom.id !== bubbleRoom) drawBubble(nearestRoom);
     }
     frames.forEach(function (f) {
       var want = (f === nearestFrame) ? 1.14 : 1;
@@ -1027,6 +1245,7 @@
     buildFrames();
     buildPosters();
     buildRobot();
+    buildFurniture();
     resize();
     animate();
   }
