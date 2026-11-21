@@ -1,4 +1,4 @@
-// Ahmad Raza — Portfolio 3D tour (v6)
+// Ahmad Raza — Portfolio 3D tour (v6.1)
 // The whole site as a walk-through gallery, like the "Websites in 2026" video:
 // hero first, then every section is a room. Frames hang on the walls — click a
 // frame to open that section's full details. Scroll / drag / arrow keys walk
@@ -16,6 +16,10 @@
 // matches the GitHub profile (TypeScript, Vite, Python, VS Code added).
 // tour.js is loaded with ?v=6 so browsers fetch the new file, not a
 // cached copy.
+// v6.1: stats labels fixed (the label span was read as the count span,
+// so every label showed "0"); the robot now faces the camera with its
+// glowing eyes toward you, stands farther ahead so it is fully in view,
+// and carries its own little lime light.
 (function () {
   "use strict";
 
@@ -91,7 +95,7 @@
     var full = strong ? (strong.innerText || strong.textContent || "").replace(/\s+/g, "") : "";
     var cur = cnt ? (cnt.innerText || cnt.textContent || "").trim() : "";
     var suffix = cur ? full.replace(cur, "") : full;
-    return { num: (target || cur) + suffix, label: txt("span:last-child", s) };
+    return { num: (target || cur) + suffix, label: txt("span:not(.count)", s) };
   });
   function findStat(label) {
     for (var i = 0; i < stats.length; i++) if (stats[i].label === label) return stats[i];
@@ -599,7 +603,7 @@
   // A small robot runs on the lime track line ahead of the camera and
   // tells you which section you have just arrived in, with a speech
   // bubble floating above it.
-  var robot = null, robotFace = 1, robotRun = 0, robotZ = Z_MAX - 2.4;
+  var robot = null, robotRun = 0, robotZ = Z_MAX - 3.5;
   var bubble = null, bubbleCanvas = null, bubbleCtx = null, bubbleTex = null, bubbleRoom = "";
   function bubbleText(room) {
     switch (room.id) {
@@ -641,18 +645,22 @@
   }
   function buildRobot() {
     robot = new THREE.Group();
-    var dark = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6, metalness: 0.4 });
+    // the face is on the +z side: the camera follows behind the robot, so
+    // the glowing eyes must look back at you, not away from you
+    var dark = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6, metalness: 0.4 });
     var lime = new THREE.MeshBasicMaterial({ color: 0xa3e635 });
     var body = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.4, 0.24), dark);
     body.position.y = 0.36; robot.add(body);
     var chest = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.12), lime);
-    chest.position.set(0, 0.38, -0.125); robot.add(chest);
+    chest.position.set(0, 0.38, 0.125); robot.add(chest);
     var head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.24, 0.24), dark);
     head.position.y = 0.68; robot.add(head);
     [-0.07, 0.07].forEach(function (ex) {
-      var eye = new THREE.Mesh(new THREE.PlaneGeometry(0.05, 0.07), lime);
-      eye.position.set(ex, 0.7, -0.125); robot.add(eye);
+      var eye = new THREE.Mesh(new THREE.PlaneGeometry(0.06, 0.09), lime);
+      eye.position.set(ex, 0.7, 0.125); robot.add(eye);
     });
+    var glow = new THREE.PointLight(0xa3e635, 0.6, 3.5, 2);
+    glow.position.set(0, 0.85, 0.3); robot.add(glow);
     var ant = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.16, 6), dark);
     ant.position.y = 0.88; robot.add(ant);
     var tip = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), lime);
@@ -663,7 +671,7 @@
       var foot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.07, 0.2), dark);
       foot.position.set(sx * 0.09, 0.035, 0); robot.add(foot);
     });
-    robot.scale.setScalar(0.62);
+    robot.scale.setScalar(0.8);
     robot.position.set(0, 0, robotZ);
     scene.add(robot);
     bubbleCanvas = document.createElement("canvas");
@@ -988,14 +996,13 @@
     // guide robot runs on the track line ahead of the camera, bobbing as
     // it goes, and its bubble announces the room you just entered
     if (robot) {
-      var wantZ = clamp(z - 2.4, Z_MIN + 0.5, Z_MAX - 0.5);
+      var wantZ = clamp(z - 3.5, Z_MIN + 0.5, Z_MAX - 0.5);
       var dz = wantZ - robotZ;
       robotZ += dz * 0.08;
       var moving = Math.abs(dz) > 0.02;
-      if (moving) robotFace = dz < 0 ? 1 : -1;
       robotRun += moving ? 0.35 : 0.06;
-      var targetRot = robotFace > 0 ? 0 : Math.PI;
-      robot.rotation.y += (targetRot - robot.rotation.y) * 0.1;
+      // the robot always faces you (the camera) like a tour guide
+      robot.rotation.y = 0;
       robot.position.z = robotZ;
       robot.position.y = moving ? Math.abs(Math.sin(robotRun)) * 0.06 : Math.sin(now * 2) * 0.015;
       if (bubble) {
