@@ -238,7 +238,7 @@
     grid.setAttribute("tabindex", "0");
     if (nav) nav.hidden = false;
     if (hint) hint.hidden = false;
-    var n = cards.length, active = 0, dragging = false, moved = false, startX = 0, dragDx = 0;
+    var n = cards.length, active = 0, dragging = false, moved = false, startX = 0, dragDx = 0, captured = false, pid = 0;
     // the wall re-metrics itself from the stage width so phones get a
     // tighter curve instead of one giant card with slivers at the edges
     function metrics() {
@@ -283,21 +283,33 @@
       if (ev.key === "ArrowRight") go(active + 1);
     });
     grid.addEventListener("pointerdown", function (ev) {
-      dragging = true; moved = false; startX = ev.clientX; dragDx = 0;
+      dragging = true; moved = false; captured = false; startX = ev.clientX; dragDx = 0; pid = ev.pointerId;
       cards.forEach(function (c) { c.style.transition = "none"; });
-      try { grid.setPointerCapture(ev.pointerId); } catch (e) {}
     });
     grid.addEventListener("pointermove", function (ev) {
       if (!dragging) return;
       dragDx = ev.clientX - startX;
-      if (Math.abs(dragDx) > 8) moved = true;
+      if (Math.abs(dragDx) > 8) {
+        moved = true;
+        // capture the pointer only once this is really a drag: capturing
+        // on every tap retargets the click to the grid, so card clicks
+        // and the Live site links underneath never fire
+        if (!captured) {
+          captured = true;
+          try { grid.setPointerCapture(ev.pointerId); } catch (e) {}
+        }
+      }
       layout(-dragDx / (metrics().spacing * 0.68));
     });
     function endDrag() {
       if (!dragging) return;
       dragging = false;
+      if (captured) { try { grid.releasePointerCapture(pid); } catch (e) {} captured = false; }
       if (Math.abs(dragDx) > 60) go(active + (dragDx < 0 ? 1 : -1));
       else go(active);
+      // clear the drag flag just after, so the click that trails a drag
+      // is ignored but any later click (or scripted click) still works
+      if (moved) setTimeout(function () { moved = false; }, 50);
     }
     grid.addEventListener("pointerup", endDrag);
     grid.addEventListener("pointercancel", endDrag);
